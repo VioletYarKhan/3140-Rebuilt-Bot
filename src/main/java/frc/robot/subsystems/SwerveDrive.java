@@ -38,7 +38,7 @@ public class SwerveDrive extends SubsystemBase {
 
   private static SwerveDrive instance = SwerveDrive.getInstance();
   PIDController thetaController = new PIDController(0.2, 0, 0);
-  LoggedPIDInputs thetaPIDInputs = new LoggedPIDInputs("ThetaController", 0.2, 0, 0);
+  LoggedPIDInputs thetaPIDInputs = new LoggedPIDInputs("ThetaController", 1.5, 0, 0);
   SwerveModuleState[] swerveModuleStates = new SwerveModuleState[4];
   // private Camera camera = Camera.getInstance();
   public static Odometry odometry;

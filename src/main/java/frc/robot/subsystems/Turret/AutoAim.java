@@ -297,7 +297,7 @@ public class AutoAim extends AimType {
         Vector2 botPos = Odometry.getInstance().getPosition();
         Vector2 flippedBotPos = FlipPose.flipVectorIfRed(botPos);
 
-        if (!flippedBotPos.isInBounds(neutralDeadZoneMin, neutralDeadZoneMax)) {
+        if (flippedBotPos.isInBounds(neutralDeadZoneMin, neutralDeadZoneMax)) {
             currentTargetOpt = Optional.empty();
             return;
         }
