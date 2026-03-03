@@ -36,7 +36,6 @@ public class Feeder extends SubsystemBase {
 
   @Override
   public void periodic() {
-    System.out.println("Feeder: " + feederActive + "\tShould: " + TurretMain.getInstance().shouldShoot() + "\tFlywheel: " + TurretMain.getInstance().getFlywheelActive());
     // This method will be called once per scheduler run
     if (feederActive && TurretMain.getInstance().shouldShoot()) {
       feederMotor.set(Constants.MotorSpeeds.Feeder.feederSpeed);
