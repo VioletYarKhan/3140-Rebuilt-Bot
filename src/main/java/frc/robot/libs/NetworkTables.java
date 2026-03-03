@@ -91,6 +91,7 @@ public class NetworkTables {
   private static NetworkTable misc = dash.getSubTable(Constants.NetworktablePaths.Misc);
     public static NetworkTableEntry driveModeManual_b = misc.getEntry("driveModeManual_b");
     public static NetworkTableEntry fieldOriented_b = misc.getEntry("fieldOriented_b");
+    public static NetworkTableEntry autoAimForCorral_b = misc.getEntry("autoAimForCorral_b");
     public static NetworkTableEntry shouldShoot_b = misc.getEntry("shouldShoot_b");
     public static NetworkTableEntry lookTowardsTarget_b = misc.getEntry("lookTowardsTarget_b");
 }

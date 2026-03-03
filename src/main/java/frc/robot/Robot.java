@@ -23,7 +23,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.swerveDrive.SetSwerveStates;
 import frc.robot.commands.swerveDrive.SwerveDriveManualControl;
-import frc.robot.commands.turret.FireAway;
 import frc.robot.libs.NetworkTables;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.SwerveDrive;

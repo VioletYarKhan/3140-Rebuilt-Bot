@@ -75,6 +75,10 @@ public class Intake extends SubsystemBase {
     intakeSetpoint = Constants.Limits.Intake.stowedPosition;
   }
 
+  public boolean isStowed() {
+    return intakeSetpoint == Constants.Limits.Intake.stowedPosition;
+  }
+
   public double getAngle() {
     return intakeEncoder.get();
   }

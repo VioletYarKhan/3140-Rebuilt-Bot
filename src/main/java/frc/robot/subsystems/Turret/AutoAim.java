@@ -1,8 +1,7 @@
 package frc.robot.subsystems.Turret;
-
 import java.util.Optional;
 
-import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
+//import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -10,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 import frc.robot.libs.FlipPose;
+import frc.robot.libs.NetworkTables;
 import frc.robot.libs.ShotPredictor;
 import frc.robot.libs.ShotPredictor.Result;
 import frc.robot.libs.Vector2;
@@ -19,7 +19,7 @@ public class AutoAim extends AimType {
     private static double predictForwardTime = 0;
     private static double predictForwardWhenCheckingMultiplier = 1; // Multiplies predict forward time when checking if
                                                                     // a shot will go in for should shoot
-    private LoggedNetworkNumber errorLog = new LoggedNetworkNumber("AutoAim/error", 0);
+    //private LoggedNetworkNumber errorLog = new LoggedNetworkNumber("AutoAim/error", 0);
 
     public static class Target {
         private Vector2 position;
@@ -55,12 +55,48 @@ public class AutoAim extends AimType {
             ),
             Units.inchesToMeters(21 - 5) // radius of hub top but less forgiving
     );
-    private Target currentTarget = hubTarget;
+    private Target leftZoneTarget = new Target(
+            new Vector2(2.065, 6.219),
+            Units.inchesToMeters(Constants.PathplannerConstants.FuelRadiusInches),
+            true,
+            new ShotPredictor.HeightBounds(
+                2.6, // meters from score point to place we have to shoot over
+                3, // desired meter height
+                1 // minimum height in meters
+            ),
+            1 // meters of leeway (radius)
+    );
+    private Target rightZoneTarget = new Target(
+            new Vector2(2.065, 1.787),
+            Units.inchesToMeters(Constants.PathplannerConstants.FuelRadiusInches),
+            true,
+            new ShotPredictor.HeightBounds(
+                2.6, // meters from score point to place we have to shoot over
+                3, // desired meter height
+                1 // minimum height in meters
+            ),
+            1 // meters of leeway (radius)
+    );
+    private Target corralRightTarget = new Target(
+            new Vector2(0, 0.675),
+            Units.inchesToMeters(Constants.PathplannerConstants.FuelRadiusInches),
+            true,
+            new ShotPredictor.HeightBounds(
+                4.7, // meters from score point to place we have to shoot over
+                2.5, // desired meter height
+                1 // minimum height in meters
+            ),
+            1 // I loosened the accuracy requirement so its ok to miss // 0.3 // meters of leeway (radius)
+    );
+    private Vector2 neutralDeadZoneMin = new Vector2(5.239, 3.434);
+    private Vector2 neutralDeadZoneMax = new Vector2(6.22, 4.572);
+
+    private Optional<Target> currentTargetOpt = Optional.empty();
     private ShotPredictor shotPredictor = new ShotPredictor(
             Constants.Limits.Turret.minPitch,
             Constants.Limits.Turret.maxPitch,
             Constants.Limits.Turret.maxAngularVelocity,
-            currentTarget.heightBounds);
+            hubTarget.heightBounds);
 
     public AutoAim() {
         rotationAngle = 0;
@@ -77,11 +113,6 @@ public class AutoAim extends AimType {
                 odometry.getBotAcceleration().mult(0.5 * dt * dt));
         Vector2 futureBotPosition = odometry.getPosition().add(predictedPositionChange);
 
-        // TODO: make this the position of the turret relative to the axis of rotation
-        // of the bot
-        // this is used to get centripetal velocity
-        // calculate for when the bot is facing in the positive x direction
-        // might want to put this in constants too
         Vector2 turretPosition = Constants.PathplannerConstants.botTurretOffset;
 
         double futureRotation = odometry.getAngle() + odometry.getAngularVelocity() * dt; // in rads
@@ -105,6 +136,12 @@ public class AutoAim extends AimType {
     }
 
     private boolean predict(double deltaTime) {
+        if (currentTargetOpt.isEmpty()) {
+            return false;
+        }
+
+        Target currentTarget = currentTargetOpt.get();
+
         shotPredictor.Bounds = currentTarget.heightBounds; // incase we want to change desired velocity
 
         double turretHeight = getTurretHeight();
@@ -141,6 +178,12 @@ public class AutoAim extends AimType {
     }
 
     private Pair<Boolean, Double> EstimateWillScore(double hoodMeasurement, double flywheelMeasurement, double rotationMeasurement) {
+        if (currentTargetOpt.isEmpty()) {
+            return new Pair<Boolean,Double>(false, Double.MAX_VALUE);
+        }
+
+        Target currentTarget = currentTargetOpt.get();
+
         // System.out.println("Flywheel: " + flywheelMeasurement);
         Pair<Pose2d, Vector2> futureState = getFutureState(predictForwardTime * predictForwardWhenCheckingMultiplier);
         Pose2d pose = futureState.getFirst();
@@ -247,17 +290,50 @@ public class AutoAim extends AimType {
             success = true;
         }
 
-        return new Pair<Boolean,Double>(true, Math.sqrt(bestDistSq));
+        return new Pair<Boolean,Double>(success, Math.sqrt(bestDistSq));
+    }
+
+    public void updateTarget() {
+        Vector2 botPos = Odometry.getInstance().getPosition();
+        Vector2 flippedBotPos = FlipPose.flipVectorIfRed(botPos);
+
+        if (!flippedBotPos.isInBounds(neutralDeadZoneMin, neutralDeadZoneMax)) {
+            currentTargetOpt = Optional.empty();
+            return;
+        }
+
+        if (flippedBotPos.X <= Constants.PathplannerConstants.neutralZoneDivision) {
+            currentTargetOpt = Optional.of(hubTarget);
+            return;
+        }
+
+        if (flippedBotPos.Y > Constants.PathplannerConstants.middleY) {
+            currentTargetOpt = Optional.of(
+                NetworkTables.autoAimForCorral_b.getBoolean(true) ?
+                corralRightTarget :
+                rightZoneTarget
+            );
+            return;
+        }
+
+        currentTargetOpt = Optional.of(leftZoneTarget);
     }
 
     @Override
     public void periodic(double deltaTime, double hoodMeasurement, double flywheelMeasurement,
             double rotationMeasurement) {
-        predict(deltaTime);
+        updateTarget();
+            
+        Boolean predictShouldShoot = predict(deltaTime);
          
-        Pair<Boolean, Double> resultPair = EstimateWillScore(hoodMeasurement, flywheelMeasurement, rotationMeasurement);
-        shouldShoot = resultPair.getFirst();
-        errorLog.set(resultPair.getSecond());
+        if (!predictShouldShoot) {
+            shouldShoot = false;
+        } else {
+            Pair<Boolean, Double> resultPair = EstimateWillScore(hoodMeasurement, flywheelMeasurement, rotationMeasurement);
+            shouldShoot = resultPair.getFirst();
+            //errorLog.set(resultPair.getSecond());
+        }
+        
     }
 
     @Override
@@ -274,6 +350,12 @@ public class AutoAim extends AimType {
 
     @Override
     public double getLookDirection() {
+        if (currentTargetOpt.isEmpty()) {
+            return Odometry.getInstance().getRotation().getDegrees();
+        }
+
+        Target currentTarget = currentTargetOpt.get();
+
         Vector2 relTargetPos = currentTarget.getPosition().sub(Odometry.getInstance().getPosition());
         return Math.toDegrees(Math.atan2(relTargetPos.Y, relTargetPos.X));
     }

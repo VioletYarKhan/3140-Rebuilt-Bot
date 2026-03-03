@@ -51,7 +51,7 @@ public class FireAway extends Command {
   public void execute() {
     if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
       // BLUE ALLIANCE --> is closer to x = 0
-      if (swerve.getPose().getX() < Constants.PathplannerConstants.blueAllianceShootPreventionY) {
+      if (swerve.getPose().getX() < Constants.PathplannerConstants.blueAllianceShootPreventionX) {
 
         if (Robot.isSimulation())
           tryShootSimFuel();
@@ -64,7 +64,7 @@ public class FireAway extends Command {
       }
     } else {
       // RED ALLIANCE
-      if (swerve.getPose().getX() > Constants.PathplannerConstants.redAllianceShootPreventionY) {
+      if (swerve.getPose().getX() > Constants.PathplannerConstants.redAllianceShootPreventionX) {
 
         if (Robot.isSimulation())
           tryShootSimFuel();

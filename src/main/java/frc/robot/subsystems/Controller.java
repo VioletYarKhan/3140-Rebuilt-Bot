@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
-import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.libs.NetworkTables;
 import frc.robot.subsystems.Turret.TurretMain;
@@ -231,12 +230,12 @@ public class Controller extends SubsystemBase {
 
     TurretMain.getInstance().setFlywheelActive(primaryController.getRightTriggerAxis() > triggerThreshold);
 
-    if (primaryController.getBButtonPressed()) {
-      Intake.getInstance().stow();
-    }
-
-    if (primaryController.getAButtonPressed()) {
-      Intake.getInstance().deploy();
+    if (primaryController.getXButtonPressed()) {
+      if (Intake.getInstance().isStowed()) {
+        Intake.getInstance().deploy();
+      } else {
+        Intake.getInstance().stow();
+      }
     }
   }
 

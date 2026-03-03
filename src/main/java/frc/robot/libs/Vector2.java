@@ -38,6 +38,10 @@ public class Vector2 {
         return new Vector2((other.X - X) * alpha + X, (other.Y - Y) * alpha + Y);
     }
 
+    public boolean isInBounds(Vector2 min, Vector2 max) {
+        return X >= min.X && Y >= min.Y && X <= max.X && Y <= max.Y;
+    }
+
     public double dot(Vector2 other) {
         return X * other.X + Y * other.Y;
     }
