@@ -263,8 +263,8 @@ public class Controller extends SubsystemBase {
 
     reusableDefaultControls();
 
-    System.out.println("Trigger: "+ (primaryController.getRightTriggerAxis()) + "\tBumper:" + primaryController.getRightBumperButton());    
-    Feeder.getInstance().setFeederActive(primaryController.getRightTriggerAxis() > triggerThreshold && TurretMain.getInstance().getFlywheelActive());
+    //System.out.println("Trigger: "+ (primaryController.getRightTriggerAxis()) + "\tBumper:" + primaryController.getRightBumperButton());    
+    Feeder.getInstance().setFeederActive(primaryController.getRightBumperButton() && TurretMain.getInstance().getFlywheelActive());
   }
 
   private void ManualMode() {
