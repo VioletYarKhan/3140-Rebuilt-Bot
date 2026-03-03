@@ -247,7 +247,7 @@ public class Robot extends LoggedRobot {
 
     double intakeRotations = Intake.getInstance().intakeArmMotorSim.getPosition() / Constants.Bot.intakeGearRatio;
     double intakeAngleDeg = intakeRotations * 360.0;
-    Intake.getInstance().intakeEncoder.setDistance(intakeAngleDeg);
+    Intake.getInstance().intakeEncoderSim.set(intakeAngleDeg);
 
     // --- SIMULATED TURRET ---
     double turretDuty = TurretMain.getInstance().turretRotationMotorSim.getAppliedOutput();
@@ -266,11 +266,11 @@ public class Robot extends LoggedRobot {
         / Constants.Bot.turretGearRatio;
     double turretAngleDeg = turretRotations * 360.0;
     turretAngleDeg = ((turretAngleDeg % 360.0) + 360.0) % 360.0;
-    TurretMain.getInstance().turretEncoder.setDistance(turretAngleDeg);
+    TurretMain.getInstance().turretEncoderSim.set(turretAngleDeg);
 
     double hoodRotations = TurretMain.getInstance().hoodMotorSim.getPosition() / Constants.Bot.hoodGearRatio;
     double hoodAngleDeg = hoodRotations * 360.0;
-    TurretMain.getInstance().hoodEncoder.setDistance(hoodAngleDeg);
+    TurretMain.getInstance().hoodEncoderSim.set(hoodAngleDeg);
 
     TurretMain.getInstance().simFuel(dt);
 

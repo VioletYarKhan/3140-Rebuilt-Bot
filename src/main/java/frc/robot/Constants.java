@@ -86,17 +86,17 @@ public final class Constants {
     public static final int BR = 1;
 
     // Intake Absolute Encoder
-    public static final int intakeEncoder = 4;
+    public static final int intakeEncoder = 0;
 
     // Turret Sensors
-    public static final int turretEncoder = 5;
+    public static final int turretEncoder = 1;
 
-    public static final int hoodEncoder = 6;
+    public static final int hoodEncoder = 2;
 
     public static class Digital {
       // Climber Limit Switches
-      public static final int climberLimitSwitchLeft = 0;
-      public static final int climberLimitSwitchRight = 1;
+      public static final int climberLimitSwitchLeft = 3;
+      public static final int climberLimitSwitchRight = 4;
     }
   }
 
@@ -115,26 +115,26 @@ public final class Constants {
 
   public static class PID {
     public static class Turret {
-      public static final double hoodP = 0.008;
-      public static final double hoodI = 0.015;
-      public static final double hoodD = 0.0001;
+      public static final double hoodP = 0;//0.008;
+      public static final double hoodI = 0;//0.015;
+      public static final double hoodD = 0;//0.0001;
 
-      public static final double rotationP = 0.0075;
-      public static final double rotationI = 0.000;
-      public static final double rotationD = 0.00015;
+      public static final double rotationP = 0;//0.0075;
+      public static final double rotationI = 0;//0.000;
+      public static final double rotationD = 0;//0.00015;
 
     }
 
     public static class Intake {
-      public static final double intakeP = 0.05;
+      public static final double intakeP = 0;//0.05;
       public static final double intakeI = 0.0;
       public static final double intakeD = 0.0;
     }
   }
   public static class FeedFoward {
     public static class Turret {
-      public static final double flywheelS = 0.1;
-      public static final double flywheelV = 0.001642;
+      public static final double flywheelS = 0;//0.1;
+      public static final double flywheelV = 0;//0.001642;
       public static final double flywheelA = 0.0;
     }
 

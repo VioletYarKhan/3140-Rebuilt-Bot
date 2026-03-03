@@ -17,7 +17,9 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.simulation.DutyCycleEncoderSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.libs.AbsoluteEncoder;
@@ -31,7 +33,8 @@ public class Intake extends SubsystemBase {
   private SparkMax intakeRollerMotor = new SparkMax(Constants.MotorIDs.intakeMotor, SparkMax.MotorType.kBrushless);
   public SparkMaxSim intakeArmMotorSim;
 
-  public AbsoluteEncoder intakeEncoder = new AbsoluteEncoder(Constants.SensorIDs.intakeEncoder, 0);
+  public DutyCycleEncoder intakeEncoder = new DutyCycleEncoder(Constants.SensorIDs.intakeEncoder, 1, 0);
+  public DutyCycleEncoderSim intakeEncoderSim = new DutyCycleEncoderSim(intakeEncoder);
 
   private double intakeSetpoint = 0;
 
@@ -73,7 +76,7 @@ public class Intake extends SubsystemBase {
   }
 
   public double getAngle() {
-    return intakeEncoder.getAbsolutePosition();
+    return intakeEncoder.get();
   }
 
   /**
@@ -96,13 +99,13 @@ public class Intake extends SubsystemBase {
 
   @Override
   public void periodic() {
-    intakeArmMotor.set(intakePID.calculate(intakeEncoder.getAbsolutePosition(), intakeSetpoint));
+    intakeArmMotor.set(intakePID.calculate(intakeEncoder.get(), intakeSetpoint));
 
     armPose = new Pose3d(
         Constants.SIM.intakeMechOffset.getX(),
         Constants.SIM.intakeMechOffset.getY(),
         Constants.SIM.intakeMechOffset.getZ(),
-        new Rotation3d(0, Math.toRadians(intakeEncoder.getAbsolutePosition()), 0));
+        new Rotation3d(0, Math.toRadians(intakeEncoder.get()), 0));
     Robot.mecanismPoses[0] = armPose;
   }
 }

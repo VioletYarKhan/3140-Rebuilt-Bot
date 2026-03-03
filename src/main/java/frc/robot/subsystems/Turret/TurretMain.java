@@ -28,8 +28,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.simulation.DutyCycleEncoderSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
@@ -52,9 +54,11 @@ public class TurretMain extends SubsystemBase {
   public SparkMaxSim turretRotationMotorSim;
   public SparkFlexSim flywheelMotorSim;
   public SparkMaxSim hoodMotorSim;
-
-  public AbsoluteEncoder hoodEncoder = new AbsoluteEncoder(Constants.SensorIDs.hoodEncoder, 0);
-  public AbsoluteEncoder turretEncoder = new AbsoluteEncoder(Constants.SensorIDs.turretEncoder, 0);
+// ROBOT WIN = TRUE
+  public DutyCycleEncoder hoodEncoder = new DutyCycleEncoder(Constants.SensorIDs.hoodEncoder, 1, 0);
+  public DutyCycleEncoderSim hoodEncoderSim = new DutyCycleEncoderSim(hoodEncoder);
+  public DutyCycleEncoder turretEncoder = new DutyCycleEncoder(Constants.SensorIDs.turretEncoder, 1, 0);
+  public DutyCycleEncoderSim turretEncoderSim = new DutyCycleEncoderSim(turretEncoder);
 
   double lastUpdateTimestamp = 0;
 
@@ -227,10 +231,10 @@ public class TurretMain extends SubsystemBase {
     aimTypes.put(AimOpt.AUTO, new AutoAim());
     aimTypes.put(AimOpt.MANUAL, new ManualAim());
 
-    turretSetpoint = turretEncoder.getAbsolutePosition();
+    turretSetpoint = turretEncoder.get();
     clampTurretSetpoint();
 
-    hoodSetpoint = hoodEncoder.getAbsolutePosition();
+    hoodSetpoint = hoodEncoder.get();
     flywheelSetpoint = 0;
 
     aimTypes.get(currentMode).activate(turretSetpoint, hoodSetpoint, FlywheelRPMToSpeed(flywheelSetpoint));
@@ -293,14 +297,14 @@ public class TurretMain extends SubsystemBase {
     flywheelFeedforward.setKv(flywheelFeedfowardInputs.getI());
     flywheelFeedforward.setKa(flywheelFeedfowardInputs.getD());
 
-    double turretEnc = turretEncoder.getAbsolutePosition();
+    double turretEnc = turretEncoder.get();
     while (turretEnc > 180) {
       turretEnc -= 360;
     }
     while (turretEnc <= -180) {
       turretEnc += 360;
     }
-    hoodPIDInputs.update(hoodSetpoint, hoodEncoder.getAbsolutePosition());
+    hoodPIDInputs.update(hoodSetpoint, hoodEncoder.get());
     rotationPIDInputs.update(turretSetpoint, turretEnc);
     flywheelFeedfowardInputs.update(flywheelSetpoint, flywheelMotor.getEncoder().getVelocity());
 
@@ -321,9 +325,9 @@ public class TurretMain extends SubsystemBase {
 
         type.periodic(
             deltaTime,
-            hoodEncoder.getAbsolutePosition(),
+            hoodEncoder.get(),
             FlywheelRPMToSpeed(  flywheelMotor.getEncoder().getVelocity()),
-            turretEncoder.getAbsolutePosition());
+            turretEncoder.get());
 
         flywheelSetpoint = FlywheelSpeedToRPM(type.flywheelSpeed); // convert from m/s to RPM
         hoodSetpoint = type.hoodAngle;
@@ -339,9 +343,9 @@ public class TurretMain extends SubsystemBase {
     hoodPID.setSetpoint(stow ? 90 : hoodSetpoint);
     rotationProfiledPID.setSetpoint(turretSetpoint);
 
-    hoodMotor.set(hoodPID.calculate(hoodEncoder.getAbsolutePosition()));
+    hoodMotor.set(hoodPID.calculate(hoodEncoder.get()));
 
-    double encoderValue = turretEncoder.getAbsolutePosition();
+    double encoderValue = turretEncoder.get();
     while (encoderValue > 180) {
       encoderValue -= 360;
     }
@@ -361,13 +365,13 @@ public class TurretMain extends SubsystemBase {
         Constants.SIM.hoodMechOffset.getX(),
         Constants.SIM.hoodMechOffset.getY(),
         Constants.SIM.hoodMechOffset.getZ(),
-        new Rotation3d(0, Math.toRadians(90 - hoodEncoder.getAbsolutePosition()),
-            Math.toRadians(turretEncoder.getAbsolutePosition())));
+        new Rotation3d(0, Math.toRadians(90 - hoodEncoder.get()),
+            Math.toRadians(turretEncoder.get())));
     turretPose = new Pose3d(
         Constants.SIM.turretMechOffset.getX(),
         Constants.SIM.turretMechOffset.getY(),
         Constants.SIM.turretMechOffset.getZ(),
-        new Rotation3d(0, 0, Math.toRadians(turretEncoder.getAbsolutePosition())));
+        new Rotation3d(0, 0, Math.toRadians(turretEncoder.get())));
 
     Robot.mecanismPoses[1] = turretPose;
     Robot.mecanismPoses[2] = hoodPose;
@@ -444,9 +448,9 @@ public class TurretMain extends SubsystemBase {
     // rotation
     Rotation3d shooterRot = new Rotation3d(
         0,
-        Math.toRadians(hoodEncoder.getAbsolutePosition()),
+        Math.toRadians(hoodEncoder.get()),
         Math.toRadians(
-            turretEncoder.getAbsolutePosition() + robotFieldPose.getRotation().getDegrees()));
+            turretEncoder.get() + robotFieldPose.getRotation().getDegrees()));
 
     Pose3d shooterPose = new Pose3d(fieldX, fieldY, fieldZ, shooterRot);
 
