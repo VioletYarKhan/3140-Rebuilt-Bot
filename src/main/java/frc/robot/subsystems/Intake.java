@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import frc.robot.Robot;
+import frc.robot.subsystems.Turret.TurretMain;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
@@ -35,12 +36,20 @@ public class Intake extends SubsystemBase {
   public DutyCycleEncoder intakeEncoder = new DutyCycleEncoder(Constants.SensorIDs.intakeEncoder, 1, 0);
   public DutyCycleEncoderSim intakeEncoderSim = new DutyCycleEncoderSim(intakeEncoder);
 
-  private double intakeSetpoint = 0;
+  private double intakeSetpoint = Constants.Limits.Intake.stowedPosition;
 
+  private TurretMain.LoggedPIDInputs intakePIDInputs = new TurretMain.LoggedPIDInputs(
+    "Intake",
+      Constants.PID.Intake.intakeP,
+      Constants.PID.Intake.intakeI,
+      Constants.PID.Intake.intakeD
+      );
+  
   private PIDController intakePID = new PIDController(
       Constants.PID.Intake.intakeP,
       Constants.PID.Intake.intakeI,
-      Constants.PID.Intake.intakeD);
+      Constants.PID.Intake.intakeD
+      );
 
   private static Intake m_instance = null;
 
@@ -54,7 +63,13 @@ public class Intake extends SubsystemBase {
   /** Creates a new Intake. */
   public Intake() {
     SparkMaxConfig config = new SparkMaxConfig();
-    config.idleMode(IdleMode.kBrake);
+    config.inverted(true);
+
+    intakePID.enableContinuousInput(0, 1);
+
+    intakeRollerMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    config.idleMode(IdleMode.kBrake).inverted(true);
 
     intakeArmMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
@@ -106,6 +121,10 @@ public class Intake extends SubsystemBase {
 
   @Override
   public void periodic() {
+    intakePID.setP(intakePIDInputs.getP());
+    intakePID.setI(intakePIDInputs.getI());
+    intakePID.setD(intakePIDInputs.getD());
+    intakePIDInputs.update(intakeSetpoint, intakeEncoder.get());
     intakeArmMotor.set(intakePID.calculate(intakeEncoder.get(), intakeSetpoint));
 
     armPose = new Pose3d(

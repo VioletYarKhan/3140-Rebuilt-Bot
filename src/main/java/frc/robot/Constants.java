@@ -89,14 +89,15 @@ public final class Constants {
     public static final int intakeEncoder = 0;
 
     // Turret Sensors
-    public static final int turretEncoder = 1;
+    public static final int turretEncoderA = 2;
+    public static final int turretEncoderB = 3;
 
-    public static final int hoodEncoder = 2;
+    public static final int hoodEncoder = 1;
 
     public static class Digital {
       // Climber Limit Switches
-      public static final int climberLimitSwitchLeft = 3;
-      public static final int climberLimitSwitchRight = 4;
+      public static final int climberLimitSwitchLeft = 4;
+      public static final int climberLimitSwitchRight = 5;
     }
   }
 
@@ -115,7 +116,7 @@ public final class Constants {
 
   public static class PID {
     public static class Turret {
-      public static final double hoodP = 0;//0.008;
+      public static final double hoodP = 0.01;//0.008;
       public static final double hoodI = 0;//0.015;
       public static final double hoodD = 0;//0.0001;
 
@@ -126,9 +127,9 @@ public final class Constants {
     }
 
     public static class Intake {
-      public static final double intakeP = 0;//0.05;
-      public static final double intakeI = 0.0;
-      public static final double intakeD = 0.0;
+      public static final double intakeP = 0;//2;
+      public static final double intakeI = 0;//0.05;
+      public static final double intakeD = 0;//0;
     }
   }
   public static class FeedFoward {
@@ -217,8 +218,9 @@ public final class Constants {
     };
 
     public static final double intakeGearRatio = 50;
-    public static final double turretGearRatio = 10;
-    public static final double hoodGearRatio = 10;
+    public static final double turretGearRatio = 10; // TODO: FIX
+    public static final double hoodGearRatio = 1;
+    public static final double hoodZeroOffset = 52.856759 + 65.594380;
     public static final double flywheelGearRatio = 10;
 
   }
@@ -236,8 +238,8 @@ public final class Constants {
     }
 
     public static class Intake {
-      public static final double deployedPosition = 90; // degrees
-      public static final double stowedPosition = 0; // degrees
+      public static final double deployedPosition = 0.0409; // rotations
+      public static final double stowedPosition = 0.784; // rotations
     }
   }
 

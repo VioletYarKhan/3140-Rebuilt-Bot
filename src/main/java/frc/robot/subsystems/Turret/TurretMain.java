@@ -29,18 +29,24 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DutyCycleEncoderSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
+import frc.robot.libs.NetworkTables;
 import frc.robot.libs.Vector2;
 import frc.robot.subsystems.TestRunner;
 import frc.robot.subsystems.TestRunner.TestType;
 import frc.robot.subsystems.odometry.Odometry;
 
 public class TurretMain extends SubsystemBase {
+  /////////////////////////////////////////////////////////////////////
+  /// TUNING VOLTAGE OVERRIDE ///
+  /////////////////////////////////////////////////////////////////////
+  private final boolean flywheelVoltOverride = true;
 
   private Pose3d turretPose = Constants.SIM.turretMechOffset;
 
@@ -56,8 +62,8 @@ public class TurretMain extends SubsystemBase {
   // ROBOT WIN = TRUE
   public DutyCycleEncoder hoodEncoder = new DutyCycleEncoder(Constants.SensorIDs.hoodEncoder, 1, 0);
   public DutyCycleEncoderSim hoodEncoderSim = new DutyCycleEncoderSim(hoodEncoder);
-  public DutyCycleEncoder turretEncoder = new DutyCycleEncoder(Constants.SensorIDs.turretEncoder, 1, 0);
-  public DutyCycleEncoderSim turretEncoderSim = new DutyCycleEncoderSim(turretEncoder);
+  public Encoder turretEncoder = new Encoder(Constants.SensorIDs.turretEncoderA, Constants.SensorIDs.turretEncoderB);
+  public DutyCycleEncoderSim turretEncoderSim = new DutyCycleEncoderSim(hoodEncoder/*turretEncoder*/); // TODO: BRO WHAT
 
   double lastUpdateTimestamp = 0;
 
@@ -202,6 +208,10 @@ public class TurretMain extends SubsystemBase {
 
   /** Creates a new Turret. */
   public TurretMain() {
+    if (flywheelVoltOverride) {
+      NetworkTables.flywheelTuningVoltage_d.setDouble(0);
+    }
+
     hoodPID.setPID(hoodPIDInputs.getP(), hoodPIDInputs.getI(), hoodPIDInputs.getD());
     rotationProfiledPID.setPID(rotationPIDInputs.getP(), rotationPIDInputs.getI(), rotationPIDInputs.getD());
     flywheelFeedforward = new SimpleMotorFeedforward(
@@ -216,7 +226,7 @@ public class TurretMain extends SubsystemBase {
     SparkMaxConfig hoodConfig = new SparkMaxConfig();
 
     turretConfig.idleMode(IdleMode.kBrake);
-    hoodConfig.idleMode(IdleMode.kBrake);
+    hoodConfig.idleMode(IdleMode.kBrake).inverted(true);
     flywheelConfig.idleMode(IdleMode.kCoast).inverted(true);
 
     turretConfig.smartCurrentLimit(Constants.CurrentLimits.Turret.turretLimit);
@@ -230,10 +240,10 @@ public class TurretMain extends SubsystemBase {
     aimTypes.put(AimOpt.AUTO, new AutoAim());
     aimTypes.put(AimOpt.MANUAL, new ManualAim());
 
-    turretSetpoint = turretEncoder.get();
+    turretSetpoint = getTurretEncoderAngle();
     clampTurretSetpoint();
 
-    hoodSetpoint = hoodEncoder.get();
+    hoodSetpoint = 90;
     flywheelSetpoint = 0;
 
     aimTypes.get(currentMode).activate(turretSetpoint, hoodSetpoint, FlywheelRPMToSpeed(flywheelSetpoint));
@@ -267,6 +277,22 @@ public class TurretMain extends SubsystemBase {
     // flywheelSpeedTolerance;
   }
 
+  private double getTurretEncoderAngle() {
+    double encoderValue = turretEncoder.getDistance()/Constants.Bot.turretGearRatio;
+    while (encoderValue > 180) {
+      encoderValue -= 360;
+    }
+    while (encoderValue <= -180) {
+      encoderValue += 360;
+    }
+    return encoderValue;
+  }
+
+  private double getHoodEncoderAngle() {
+    double encoderValue = hoodEncoder.get()*360/Constants.Bot.hoodGearRatio - Constants.Bot.hoodZeroOffset;
+    return 90 - encoderValue;
+  }
+
   public void setHoodAngle(double angle) {
     hoodSetpoint = angle;
   }
@@ -287,6 +313,7 @@ public class TurretMain extends SubsystemBase {
     return shouldStow;
   }
 
+  @SuppressWarnings("unused")
   @Override
   public void periodic() {
 
@@ -296,14 +323,8 @@ public class TurretMain extends SubsystemBase {
     flywheelFeedforward.setKv(flywheelFeedfowardInputs.getI());
     flywheelFeedforward.setKa(flywheelFeedfowardInputs.getD());
 
-    double turretEnc = turretEncoder.get();
-    while (turretEnc > 180) {
-      turretEnc -= 360;
-    }
-    while (turretEnc <= -180) {
-      turretEnc += 360;
-    }
-    hoodPIDInputs.update(hoodSetpoint, hoodEncoder.get());
+    double turretEnc = getTurretEncoderAngle();
+    hoodPIDInputs.update(hoodSetpoint, getHoodEncoderAngle());
     rotationPIDInputs.update(turretSetpoint, turretEnc);
     flywheelFeedfowardInputs.update(flywheelSetpoint, flywheelMotor.getEncoder().getVelocity());
 
@@ -324,9 +345,9 @@ public class TurretMain extends SubsystemBase {
 
         type.periodic(
             deltaTime,
-            hoodEncoder.get(),
+            getHoodEncoderAngle(),
             FlywheelRPMToSpeed(flywheelMotor.getEncoder().getVelocity()),
-            turretEncoder.get());
+            getTurretEncoderAngle());
 
         flywheelSetpoint = FlywheelSpeedToRPM(type.flywheelSpeed); // convert from m/s to RPM
         hoodSetpoint = type.hoodAngle;
@@ -342,20 +363,15 @@ public class TurretMain extends SubsystemBase {
     hoodPID.setSetpoint(stow ? 90 : hoodSetpoint);
     rotationProfiledPID.setSetpoint(turretSetpoint);
 
-    hoodMotor.set(hoodPID.calculate(hoodEncoder.get()));
+    hoodMotor.set(hoodPID.calculate(getHoodEncoderAngle()));
 
-    double encoderValue = turretEncoder.get();
-    while (encoderValue > 180) {
-      encoderValue -= 360;
-    }
-    while (encoderValue <= -180) {
-      encoderValue += 360;
-    }
+    double encoderValue = getTurretEncoderAngle();
     // System.out.println("Enc: "+encoderValue+"\tSetp: "+turretSetpoint);
     turretRotationMotor.set(rotationProfiledPID.calculate(encoderValue));
 
-    if (spinup) {
-      flywheelMotor.set(flywheelFeedforward.calculate(flywheelSetpoint) / 12);
+    if (spinup || flywheelVoltOverride) {
+      flywheelMotor.set(flywheelVoltOverride ? NetworkTables.flywheelTuningVoltage_d.getDouble(0)
+          : flywheelFeedforward.calculate(flywheelSetpoint) / 12);
     } else {
       flywheelMotor.setVoltage(0);
     }
@@ -364,13 +380,13 @@ public class TurretMain extends SubsystemBase {
         Constants.SIM.hoodMechOffset.getX(),
         Constants.SIM.hoodMechOffset.getY(),
         Constants.SIM.hoodMechOffset.getZ(),
-        new Rotation3d(0, Math.toRadians(90 - hoodEncoder.get()),
-            Math.toRadians(turretEncoder.get())));
+        new Rotation3d(0, Math.toRadians(90 - getHoodEncoderAngle()),
+            Math.toRadians(encoderValue)));
     turretPose = new Pose3d(
         Constants.SIM.turretMechOffset.getX(),
         Constants.SIM.turretMechOffset.getY(),
         Constants.SIM.turretMechOffset.getZ(),
-        new Rotation3d(0, 0, Math.toRadians(turretEncoder.get())));
+        new Rotation3d(0, 0, Math.toRadians(encoderValue)));
 
     Robot.mecanismPoses[1] = turretPose;
     Robot.mecanismPoses[2] = hoodPose;
@@ -447,9 +463,9 @@ public class TurretMain extends SubsystemBase {
     // rotation
     Rotation3d shooterRot = new Rotation3d(
         0,
-        Math.toRadians(hoodEncoder.get()),
+        Math.toRadians(getHoodEncoderAngle()),
         Math.toRadians(
-            turretEncoder.get() + robotFieldPose.getRotation().getDegrees()));
+            getTurretEncoderAngle() + robotFieldPose.getRotation().getDegrees()));
 
     Pose3d shooterPose = new Pose3d(fieldX, fieldY, fieldZ, shooterRot);
 
