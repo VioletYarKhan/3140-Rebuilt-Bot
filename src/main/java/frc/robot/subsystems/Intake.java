@@ -41,7 +41,7 @@ public class Intake extends SubsystemBase {
   public DutyCycleEncoderSim intakeEncoderSim = new DutyCycleEncoderSim(intakeEncoderL);
 
   public double rightEncoderOffset = 0.93-(1-0.76);
-
+  private double gravityFeedFowardConstant = 0.05;
   private double intakeSetpoint = Constants.Limits.Intake.stowedPosition;
 
   private TurretMain.LoggedPIDInputs intakePIDInputs = new TurretMain.LoggedPIDInputs(
@@ -137,21 +137,33 @@ public class Intake extends SubsystemBase {
     return intakeRollerMotor.get() > 0;
   }
 
+  // Angle to the horizontal
+  public double getLeftSideAngle() {
+    return ((getAngle() * 360) + (Constants.Limits.Intake.deployedPosition * 360)) % 360; 
+  }
+
+  // Angle to the horizontal
+  public double getRightSideAngle() {
+    return ((getRightAngle() * 360) + (Constants.Limits.Intake.deployedPosition * 360)) % 360; 
+  }
+
   @Override
   public void periodic() {
     intakePIDL.setP(intakePIDInputs.getP());
     intakePIDL.setI(intakePIDInputs.getI());
     intakePIDL.setD(intakePIDInputs.getD());
+
     intakePIDR.setP(intakePIDInputs.getP());
     intakePIDR.setI(intakePIDInputs.getI());
     intakePIDR.setD(intakePIDInputs.getD());
 
     intakePIDInputs.update(intakeSetpoint, intakeEncoderL.get());
-    intakeArmMotorL.set(intakePIDL.calculate(intakeEncoderL.get(), intakeSetpoint));
-    intakeArmMotorR.set(intakePIDR.calculate(getRightAngle(), intakeSetpoint));
+    intakeArmMotorL.set(intakePIDL.calculate(intakeEncoderL.get(), intakeSetpoint) + gravityFeedFowardConstant * Math.cos(getLeftSideAngle() * Math.PI / 180));
+    intakeArmMotorR.set(intakePIDR.calculate(getRightAngle(), intakeSetpoint) + gravityFeedFowardConstant * Math.cos(getRightSideAngle() * Math.PI / 180));
 
     NetworkTables.intakeLeftEncoder.setDouble(intakeEncoderL.get());
     NetworkTables.intakeRightEncoder.setDouble(getRightAngle());
+    gravityFeedFowardConstant = NetworkTables.intakeGravityConstant.getDouble(gravityFeedFowardConstant);
 
     armPose = new Pose3d(
         Constants.SIM.intakeMechOffset.getX(),

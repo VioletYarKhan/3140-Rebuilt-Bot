@@ -15,6 +15,7 @@ import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.libs.NetworkTables;
 import frc.robot.subsystems.Turret.TurretMain;
+import frc.robot.subsystems.Turret.TurretMain.AimOpt;
 
 public class Controller extends SubsystemBase {
   private static Controller instance = null;
@@ -245,14 +246,23 @@ public class Controller extends SubsystemBase {
 
   private void updateControlMode() {
     if (secondaryController.getRightBumperButtonPressed()) {
+
+      TurretMain.getInstance().setAimMode(AimOpt.MANUAL);
+
       curControlMode = ControlMode.MANUAL;
       System.out.println("Control Mode: " + curControlMode);
       setRumbleBoth(controllers.SECONDARY, 0.1, 1);
     } else if (secondaryController.getLeftBumperButtonPressed()) {
+
+      TurretMain.getInstance().setAimMode(AimOpt.AUTO);
+
       curControlMode = ControlMode.AUTO;
       System.out.println("Control Mode: " + curControlMode);
       setRumbleBoth(controllers.SECONDARY, 0.1, 1);
     } else if (getLeftTriggerTriggered(controllers.SECONDARY) && getRightTriggerTriggered(controllers.SECONDARY)) {
+
+      TurretMain.getInstance().setAimMode(AimOpt.MANUAL);
+
       curControlMode = ControlMode.OHNO_MANUAL;
       System.out.println("Control Mode: " + curControlMode);
       setRumbleBoth(controllers.SECONDARY, 0.1, 1);
@@ -290,7 +300,6 @@ public class Controller extends SubsystemBase {
       updateControlMode();
       return;
     }
-
     Feeder.getInstance().setFeederActive(
         primaryController.getRightTriggerAxis() > triggerThreshold && primaryController.getRightBumperButton());
   }
