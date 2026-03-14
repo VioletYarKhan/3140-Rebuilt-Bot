@@ -86,7 +86,8 @@ public final class Constants {
     public static final int BR = 1;
 
     // Intake Absolute Encoder
-    public static final int intakeEncoder = 0;
+    public static final int intakeEncoderL = 0;
+    public static final int intakeEncoderR = 4;
 
     // Turret Sensors
     public static final int turretEncoderA = 2;
@@ -96,8 +97,8 @@ public final class Constants {
 
     public static class Digital {
       // Climber Limit Switches
-      public static final int climberLimitSwitchLeft = 4;
-      public static final int climberLimitSwitchRight = 5;
+      public static final int climberLimitSwitchLeft = 5;
+      public static final int climberLimitSwitchRight = 6;
     }
   }
 
@@ -239,8 +240,8 @@ public final class Constants {
     }
 
     public static class Intake {
-      public static final double deployedPosition = 0.02;//0.0409; // rotations
-      public static final double stowedPosition = 0.8;//0.784; // rotations
+      public static final double deployedPosition = 0.085;//0.191;// rotations
+      public static final double stowedPosition = 0.98;//0.93; // rotations
     }
   }
 

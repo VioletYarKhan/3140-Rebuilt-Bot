@@ -30,14 +30,17 @@ import frc.robot.Constants;
 public class Intake extends SubsystemBase {
   private Pose3d armPose = Constants.SIM.intakeMechOffset;
 
-  private SparkMax intakeArmMotor = new SparkMax(Constants.MotorIDs.intakeArmMotor, SparkMax.MotorType.kBrushless);
-  private SparkMax intakeArmMotorFollower = new SparkMax(Constants.MotorIDs.intakeArmMotorFollower,
+  private SparkMax intakeArmMotorL = new SparkMax(Constants.MotorIDs.intakeArmMotor, SparkMax.MotorType.kBrushless);
+  private SparkMax intakeArmMotorR = new SparkMax(Constants.MotorIDs.intakeArmMotorFollower,
       SparkMax.MotorType.kBrushless);
   private SparkMax intakeRollerMotor = new SparkMax(Constants.MotorIDs.intakeMotor, SparkMax.MotorType.kBrushless);
   public SparkMaxSim intakeArmMotorSim;
 
-  public DutyCycleEncoder intakeEncoder = new DutyCycleEncoder(Constants.SensorIDs.intakeEncoder, 1, 0);
-  public DutyCycleEncoderSim intakeEncoderSim = new DutyCycleEncoderSim(intakeEncoder);
+  public DutyCycleEncoder intakeEncoderL = new DutyCycleEncoder(Constants.SensorIDs.intakeEncoderL, 1, 0);
+  public DutyCycleEncoder intakeEncoderR = new DutyCycleEncoder(Constants.SensorIDs.intakeEncoderR, 1, 0);
+  public DutyCycleEncoderSim intakeEncoderSim = new DutyCycleEncoderSim(intakeEncoderL);
+
+  public double rightEncoderOffset = 0.93-(1-0.76);
 
   private double intakeSetpoint = Constants.Limits.Intake.stowedPosition;
 
@@ -48,7 +51,12 @@ public class Intake extends SubsystemBase {
       Constants.PID.Intake.intakeD
       );
   
-  private PIDController intakePID = new PIDController(
+  private PIDController intakePIDL = new PIDController(
+      Constants.PID.Intake.intakeP,
+      Constants.PID.Intake.intakeI,
+      Constants.PID.Intake.intakeD
+      );
+  private PIDController intakePIDR = new PIDController(
       Constants.PID.Intake.intakeP,
       Constants.PID.Intake.intakeI,
       Constants.PID.Intake.intakeD
@@ -67,7 +75,8 @@ public class Intake extends SubsystemBase {
   public Intake() {
     SparkMaxConfig config = new SparkMaxConfig();
 
-    intakePID.enableContinuousInput(0, 1);
+    intakePIDL.enableContinuousInput(0, 1);
+    intakePIDR.enableContinuousInput(0, 1);
     
 
     intakeRollerMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -75,13 +84,14 @@ public class Intake extends SubsystemBase {
 
 
     config.idleMode(IdleMode.kBrake).inverted(true).smartCurrentLimit(15);
-    intakeArmMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    
-    config.follow(intakeArmMotor.getDeviceId(), true);
-    intakeArmMotorFollower.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    intakeArmMotorL.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    config.inverted(false);
+    intakeArmMotorR.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
 
     if (RobotBase.isSimulation()) {
-      intakeArmMotorSim = new SparkMaxSim(intakeArmMotor, DCMotor.getNEO(1));
+      intakeArmMotorSim = new SparkMaxSim(intakeArmMotorL, DCMotor.getNEO(1));
     }
   }
 
@@ -98,7 +108,11 @@ public class Intake extends SubsystemBase {
   }
 
   public double getAngle() {
-    return intakeEncoder.get();
+    return intakeEncoderL.get();
+  }
+
+  public double getRightAngle() {
+    return ((1 - intakeEncoderR.get()) + rightEncoderOffset) % 1;
   }
 
   /**
@@ -125,18 +139,25 @@ public class Intake extends SubsystemBase {
 
   @Override
   public void periodic() {
-    intakePID.setP(intakePIDInputs.getP());
-    intakePID.setI(intakePIDInputs.getI());
-    intakePID.setD(intakePIDInputs.getD());
-    intakePIDInputs.update(intakeSetpoint, intakeEncoder.get());
-    intakeArmMotor.set(intakePID.calculate(intakeEncoder.get(), intakeSetpoint));
-    NetworkTables.intakeMotorLeftEncoder.setDouble(intakeArmMotor.getEncoder().getPosition() * 360 / 125 );
-    NetworkTables.intakeMotorRightEncoder.setDouble(intakeArmMotorFollower.getEncoder().getPosition() * 360 / 125);
+    intakePIDL.setP(intakePIDInputs.getP());
+    intakePIDL.setI(intakePIDInputs.getI());
+    intakePIDL.setD(intakePIDInputs.getD());
+    intakePIDR.setP(intakePIDInputs.getP());
+    intakePIDR.setI(intakePIDInputs.getI());
+    intakePIDR.setD(intakePIDInputs.getD());
+
+    intakePIDInputs.update(intakeSetpoint, intakeEncoderL.get());
+    intakeArmMotorL.set(intakePIDL.calculate(intakeEncoderL.get(), intakeSetpoint));
+    intakeArmMotorR.set(intakePIDR.calculate(getRightAngle(), intakeSetpoint));
+
+    NetworkTables.intakeLeftEncoder.setDouble(intakeEncoderL.get());
+    NetworkTables.intakeRightEncoder.setDouble(getRightAngle());
+
     armPose = new Pose3d(
         Constants.SIM.intakeMechOffset.getX(),
         Constants.SIM.intakeMechOffset.getY(),
         Constants.SIM.intakeMechOffset.getZ(),
-        new Rotation3d(0, Math.toRadians(intakeEncoder.get()), 0));
+        new Rotation3d(0, Math.toRadians(intakeEncoderL.get()), 0));
     Robot.mecanismPoses[0] = armPose;
   }
 }
