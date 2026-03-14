@@ -47,7 +47,7 @@ public class TurretMain extends SubsystemBase {
   /// TUNING VOLTAGE OVERRIDE ///
   /////////////////////////////////////////////////////////////////////
   public static final boolean flywheelVoltOverride = true;
-  private final boolean hoodAngleOverride = true;
+  private final boolean hoodAngleOverride = false;
 
   private Pose3d turretPose = Constants.SIM.turretMechOffset;
 
@@ -212,7 +212,7 @@ public class TurretMain extends SubsystemBase {
       NetworkTables.flywheelTuningVoltage_d.setDouble(5.000);
     }
     if (hoodAngleOverride) {
-      NetworkTables.hoodAngle_d.setDouble(40);
+      NetworkTables.hoodAngle_d.setDouble(70);
     }
 
       NetworkTables.flywheelRPMConversionConstant_d.setDouble(0.1);
