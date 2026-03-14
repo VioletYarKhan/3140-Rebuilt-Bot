@@ -281,7 +281,7 @@ public class TurretMain extends SubsystemBase {
   }
 
   private double getTurretEncoderAngle() {
-    double encoderValue = turretEncoder.getDistance();
+    double encoderValue = -turretEncoder.getDistance();
     while (encoderValue > 180) {
       encoderValue -= 360;
     }
