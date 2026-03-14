@@ -229,11 +229,9 @@ public class TurretMain extends SubsystemBase {
     SparkFlexConfig flywheelConfig = new SparkFlexConfig();
     SparkMaxConfig hoodConfig = new SparkMaxConfig();
     turretEncoder.setDistancePerPulse(1/(Constants.Bot.turretGearRatio*Constants.Bot.turretGearRatio));
-    turretConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(Constants.CurrentLimits.Turret.turretLimit);
+    turretConfig.idleMode(IdleMode.kBrake).inverted(true).smartCurrentLimit(Constants.CurrentLimits.Turret.turretLimit);
     hoodConfig.idleMode(IdleMode.kBrake).inverted(true).smartCurrentLimit(Constants.CurrentLimits.Turret.hoodLimit);
     flywheelConfig.idleMode(IdleMode.kCoast).inverted(true).smartCurrentLimit(Constants.CurrentLimits.Turret.flywheelLimit);
-
-    turretConfig.smartCurrentLimit(Constants.CurrentLimits.Turret.turretLimit);
 
     turretRotationMotor.configure(turretConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     hoodMotor.configure(hoodConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);

@@ -122,9 +122,9 @@ public final class Constants {
       public static final double hoodI = 0;//0.015;
       public static final double hoodD = 0;//0.0001;
 
-      public static final double rotationP = 0;//0.0075;
-      public static final double rotationI = 0;//0.000;
-      public static final double rotationD = 0;//.00015;
+      public static final double rotationP = 0.01;//0.0075;
+      public static final double rotationI = 0.001;//0.000;
+      public static final double rotationD = 0.0001;//.00015;
 
     }
 
@@ -240,7 +240,7 @@ public final class Constants {
     }
 
     public static class Intake {
-      public static final double deployedPosition = 0.085;//0.191;// rotations
+      public static final double deployedPosition = 0.191;// rotations
       public static final double stowedPosition = 0.98;//0.93; // rotations
     }
   }

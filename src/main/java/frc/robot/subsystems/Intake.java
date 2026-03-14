@@ -41,7 +41,8 @@ public class Intake extends SubsystemBase {
   public DutyCycleEncoderSim intakeEncoderSim = new DutyCycleEncoderSim(intakeEncoderL);
 
   public double rightEncoderOffset = 0.93-(1-0.76);
-  private double gravityFeedFowardConstant = 0.05;
+  private double gravityFeedFowardConstant = 0;//0.02;
+  private double separationConstant = 0.00;
   private double intakeSetpoint = Constants.Limits.Intake.stowedPosition;
 
   private TurretMain.LoggedPIDInputs intakePIDInputs = new TurretMain.LoggedPIDInputs(
@@ -88,7 +89,8 @@ public class Intake extends SubsystemBase {
 
     config.inverted(false);
     intakeArmMotorR.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
+    NetworkTables.intakeGravityConstant.setDouble(gravityFeedFowardConstant);
+    NetworkTables.intakeSeparationConstant.setDouble(separationConstant);
 
     if (RobotBase.isSimulation()) {
       intakeArmMotorSim = new SparkMaxSim(intakeArmMotorL, DCMotor.getNEO(1));
@@ -158,12 +160,16 @@ public class Intake extends SubsystemBase {
     intakePIDR.setD(intakePIDInputs.getD());
 
     intakePIDInputs.update(intakeSetpoint, intakeEncoderL.get());
-    intakeArmMotorL.set(intakePIDL.calculate(intakeEncoderL.get(), intakeSetpoint) + gravityFeedFowardConstant * Math.cos(getLeftSideAngle() * Math.PI / 180));
-    intakeArmMotorR.set(intakePIDR.calculate(getRightAngle(), intakeSetpoint) + gravityFeedFowardConstant * Math.cos(getRightSideAngle() * Math.PI / 180));
+    intakeArmMotorL.set(separationConstant * ((getLeftSideAngle() - getRightSideAngle()) / 360) + intakePIDL.calculate(intakeEncoderL.get(), intakeSetpoint) - gravityFeedFowardConstant * Math.sin(getLeftSideAngle() * Math.PI / 180));
+    intakeArmMotorR.set(separationConstant * ((getRightSideAngle() - getLeftSideAngle()) / 360) + intakePIDR.calculate(getRightAngle(), intakeSetpoint) - gravityFeedFowardConstant * Math.sin(getRightSideAngle() * Math.PI / 180));
 
     NetworkTables.intakeLeftEncoder.setDouble(intakeEncoderL.get());
     NetworkTables.intakeRightEncoder.setDouble(getRightAngle());
+    NetworkTables.intakeLeftSideHorizontalAngle.setDouble(getLeftSideAngle());
+    NetworkTables.intakeRightSideHorizontalAngle.setDouble(getRightSideAngle());
     gravityFeedFowardConstant = NetworkTables.intakeGravityConstant.getDouble(gravityFeedFowardConstant);
+    separationConstant = NetworkTables.intakeSeparationConstant.getDouble(separationConstant);
+
 
     armPose = new Pose3d(
         Constants.SIM.intakeMechOffset.getX(),
