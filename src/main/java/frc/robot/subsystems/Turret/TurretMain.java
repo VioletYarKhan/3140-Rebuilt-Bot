@@ -112,7 +112,8 @@ public class TurretMain extends SubsystemBase {
       Constants.FeedFoward.Turret.flywheelA);
   private boolean spinup = false;
 
-  private static double RPMSpeedConversion = 0.0015302774; // DESMOOOOOOOS 
+  //private static double RPMSpeedConversion = 0.0015302774; // DESMOOOOOOOS TODO: replace with interpolation map, this was calculated for 6000 rpm
+
 
   public enum AimOpt {
     AUTO,
@@ -227,7 +228,12 @@ public class TurretMain extends SubsystemBase {
     projectileAngleToHoodAngle.put(80.0, 20.0);
     projectileAngleToHoodAngle.put(56.15, 37.5);
 
-
+    // TODO: do the flywheel stuff. The angle and speed seem to be independent so we only need to test the RPM to speed at one angle
+    projectileSpeedToFlywheelSpeed.put(9.18, 6000.0);
+    //projectileSpeedToFlywheelSpeed.put(0.0, 0.0);
+    
+    flywheelSpeedToProjectileSpeed.put(6000.0, 9.18);
+    //flywheelSpeedToProjectileSpeed.put(0.0, 0.0);
 
     NetworkTables.flywheelRPMOverride_d.setDouble(5000);
     NetworkTables.hoodAngle_d.setDouble(0);
@@ -373,7 +379,7 @@ public class TurretMain extends SubsystemBase {
             FlywheelRPMToSpeed(flywheelMotor.getEncoder().getVelocity()),
             getTurretEncoderAngle());
 
-        flywheelSetpoint = FlywheelSpeedToRPM(type.flywheelSpeed); // convert from m/s to RPM
+        flywheelSetpoint = SpeedToFlywheelRPM(type.flywheelSpeed); // convert from m/s to RPM
         hoodSetpoint = projectileAngleToHoodAngle.get(type.hoodAngle);
         hoodSetpoint = Math.max(Constants.Limits.Turret.minPitch, Math.min(Constants.Limits.Turret.maxPitch, hoodSetpoint));
         turretSetpoint = type.rotationAngle;
@@ -444,11 +450,11 @@ public class TurretMain extends SubsystemBase {
   }
 
   public double FlywheelRPMToSpeed(double RPM) {
-    return RPM * RPMSpeedConversion;
+    return flywheelSpeedToProjectileSpeed.get(RPM);
   }
 
-  public double FlywheelSpeedToRPM(double speed) {
-    return speed / (RPMSpeedConversion);
+  public double SpeedToFlywheelRPM(double speed) {
+    return projectileSpeedToFlywheelSpeed.get(speed);
   }
 
   public void simFuel(double dt) {
