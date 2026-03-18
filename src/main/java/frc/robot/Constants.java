@@ -123,8 +123,8 @@ public final class Constants {
       public static final double hoodD = 0.0001; // F TUNED
 
       public static final double rotationP = 0.01;//0.0075;
-      public static final double rotationI = 0.001;//0.000;
-      public static final double rotationD = 0.0001;//.00015;
+      public static final double rotationI = 0.000;//0.000;
+      public static final double rotationD = 0.0000;//.00015;
 
     }
 
@@ -147,7 +147,7 @@ public final class Constants {
     public static class Turret {
       public static final int flywheelLimit = 40;
       public static final int hoodLimit = 15;
-      public static final int turretLimit = 20;
+      public static final int turretLimit = 30;
     }
 
     public static class Intake {
@@ -229,11 +229,11 @@ public final class Constants {
 
   public static class Limits {
     public static class Turret {
-      public static final double minPitch = 14.9;//0; // degrees above horizontal
-      public static final double maxPitch = 15.0;//45;
+      public static final double minPitch = 0; // degrees above horizontal
+      public static final double maxPitch = 45;
       public static final double maxAngularVelocity = 1000000;//30; // degrees per second
 
-      public static final double maxFuelVelocity = 15;
+      public static final double maxFuelVelocity = 9.18;
 
       public static final double minYaw = -90;
       public static final double maxYaw = 90;
@@ -241,7 +241,7 @@ public final class Constants {
 
     public static class Intake {
       public static final double deployedPosition = 0.26;// rotations
-      public static final double stowedPosition = 0.00;//0.93; // rotations
+      public static final double stowedPosition = 0.0;//0.93; // rotations
       public static final double leftOffset = 0.82;//0.93; // rotations
     }
   }
@@ -258,10 +258,10 @@ public final class Constants {
 
   public static class CameraConstants {
     // public static final double maxTimeBeteweenFrames = 0.1;
-    public static final double leftOffsetToCenter = -Units.inchesToMeters(13);
-    public static final double rightOffsetToCenter = Units.inchesToMeters(13);
-    public static final double offsetToCenterVert = Units.inchesToMeters(4);
-    public static final double offsetToCenterHoriz = Units.inchesToMeters(13);
+    public static final double leftOffsetToCenter = Units.inchesToMeters(8.5);
+    public static final double rightOffsetToCenter = -Units.inchesToMeters(8.5);
+    public static final double offsetToCenterVert = Units.inchesToMeters(8);
+    public static final double offsetToCenterHoriz = Units.inchesToMeters(9);
     public static final double pitch = Math.toRadians(-10);
     public static final double maxReprojectionError = 0.3;
   }

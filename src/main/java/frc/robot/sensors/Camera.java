@@ -49,10 +49,10 @@ public class Camera extends SubsystemBase {
 
   private Transform3d oneToBot = new Transform3d(Constants.CameraConstants.offsetToCenterHoriz, Constants.CameraConstants.leftOffsetToCenter,
       Constants.CameraConstants.offsetToCenterVert,
-      new Rotation3d(0, Constants.CameraConstants.pitch, Math.toRadians(-45)));
+      new Rotation3d(0, Constants.CameraConstants.pitch, Math.toRadians(45)));
   private Transform3d twoToBot = new Transform3d(Constants.CameraConstants.offsetToCenterHoriz, Constants.CameraConstants.rightOffsetToCenter,
       Constants.CameraConstants.offsetToCenterVert,
-      new Rotation3d(0, Constants.CameraConstants.pitch, Math.toRadians(45)));
+      new Rotation3d(0, Constants.CameraConstants.pitch, Math.toRadians(-45)));
 
   private AprilTagFieldLayout layout = FieldAprilTags.getInstance().field;
   private PhotonPoseEstimator oneEstimator = new PhotonPoseEstimator(layout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
@@ -145,7 +145,6 @@ public class Camera extends SubsystemBase {
 
     oneEstimator.addHeadingData(Timer.getFPGATimestamp(), Odometry.getInstance().getRotation());
     twoEstimator.addHeadingData(Timer.getFPGATimestamp(), Odometry.getInstance().getRotation());
-
     if (connected || RobotBase.isSimulation()) {
       Pose3d estimatedPoseOne = Pose3d.kZero, estimatedPoseTwo = Pose3d.kZero;
       Pose2d curPose = Odometry.getInstance().getPose();
@@ -164,10 +163,21 @@ public class Camera extends SubsystemBase {
             Optional<EstimatedRobotPose> pose = oneEstimator.update(new PhotonPipelineResult(result.metadata,
                 result.getTargets(),
                 multiResult));
-            if (pose.isPresent())
+            if (pose.isPresent()) {
               estimatedPoseOne = pose.get().estimatedPose;
+              System.out.println("Pose 1 exists");
+            }
 
-          }
+            } else {
+              // Update pose one with single tag estimation if it is available
+              if (!result.getTargets().isEmpty()) {
+                Optional<EstimatedRobotPose> pose = oneEstimator.update(result);
+                if (pose.isPresent()) {
+                  estimatedPoseOne = pose.get().estimatedPose;
+                  System.out.println("Pose 1 single tag exists");
+                }
+              }
+            }
         }
       }
       if (secondCameraResults.size() != 0) {
@@ -178,9 +188,20 @@ public class Camera extends SubsystemBase {
             Optional<EstimatedRobotPose> pose = twoEstimator.update(new PhotonPipelineResult(result.metadata,
                 result.getTargets(),
                 multiResult));
-            if (pose.isPresent())
+            if (pose.isPresent()) {
               estimatedPoseTwo = pose.get().estimatedPose;
-          }
+              System.out.println("Pose 2 exists");
+            }
+            } else {
+              // Update pose two with single tag estimation if it is available
+              if (!result.getTargets().isEmpty()) {
+                Optional<EstimatedRobotPose> pose = twoEstimator.update(result);
+                if (pose.isPresent()) {
+                  estimatedPoseTwo = pose.get().estimatedPose;
+                  System.out.println("Pose 2 single tag exists");
+                }
+              }
+            }
         }
       }
 

@@ -24,7 +24,9 @@ public class ManualAim extends AimType {
             double rotationMeasurement) {
         desiredRotationAngle += -controller.getRightX() * manualAimRotationSpeed * deltaTime;
         hoodAngle += -controller.getLeftY() * manualAimHoodSpeed * deltaTime;
-        rotationAngle = desiredRotationAngle - Odometry.getInstance().getRotation().getDegrees();
+        desiredRotationAngle = Math.max(-90, Math.min(desiredRotationAngle, 90));
+        rotationAngle = desiredRotationAngle; //- Odometry.getInstance().getRotation().getDegrees();
+
     }
 
     @Override

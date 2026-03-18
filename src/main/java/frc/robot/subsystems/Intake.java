@@ -42,7 +42,7 @@ public class Intake extends SubsystemBase {
   public DutyCycleEncoder intakeEncoderR = new DutyCycleEncoder(Constants.SensorIDs.intakeEncoderR, 1, rightEncoderOffset);
   public DutyCycleEncoderSim intakeEncoderSim = new DutyCycleEncoderSim(intakeEncoderL);
 
-  private double gravityFeedFowardConstant = 0.00;
+  private double gravityFeedFowardConstant = 0;
   private double separationConstant = 2;
   private double intakeSetpoint = Constants.Limits.Intake.stowedPosition;
 
@@ -80,6 +80,8 @@ public class Intake extends SubsystemBase {
     intakePIDL.enableContinuousInput(0, 1);
     intakePIDR.enableContinuousInput(0, 1);
     
+    intakePIDL.setTolerance(0.1);
+    intakePIDR.setTolerance(0.1);
 
     intakeRollerMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     config.inverted(true);
@@ -171,6 +173,10 @@ public class Intake extends SubsystemBase {
     intakePIDInputs.update(intakeSetpoint, intakeEncoderL.get());
     intakeArmMotorL.set(separationConstant * (getAngleDifference(getLeftSideAngle(), getRightSideAngle()) / 360) + intakePIDL.calculate(intakeEncoderL.get(), intakeSetpoint) - gravityFeedFowardConstant * Math.sin(getLeftSideAngle() * Math.PI / 180));
     intakeArmMotorR.set(separationConstant * (getAngleDifference(getRightSideAngle(), getLeftSideAngle()) / 360) + intakePIDR.calculate(getRightAngle(), intakeSetpoint) - gravityFeedFowardConstant * Math.sin(getRightSideAngle() * Math.PI / 180));
+
+    System.out.println("Separation Constant: " +separationConstant * (getAngleDifference(getLeftSideAngle(), getRightSideAngle()) / 360) );
+    System.out.println("PID Output: " +intakePIDL.calculate(intakeEncoderL.get(), intakeSetpoint));
+    System.out.println();
 
     NetworkTables.intakeLeftEncoder.setDouble(intakeEncoderL.get());
     NetworkTables.intakeRightEncoder.setDouble(getRightAngle());
