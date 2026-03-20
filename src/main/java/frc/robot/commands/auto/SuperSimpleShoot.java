@@ -31,6 +31,6 @@ public class SuperSimpleShoot extends SequentialCommandGroup {
         new InstantCommand(() -> TurretMain.getInstance().setHoodAngle(25)),
             new InstantCommand(() -> NetworkTables.flywheelRPMOverride_d.setDouble(5000)),
             new InstantCommand(() -> TurretMain.flywheelRPMOverride = true ),
-            new FireAway(TurretMain.getInstance()));
+            new FireAway(TurretMain.getInstance(), true));
   }
 }

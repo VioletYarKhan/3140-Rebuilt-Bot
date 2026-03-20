@@ -36,6 +36,11 @@ public class FireAway extends Command {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(this.turret);
   }
+  boolean bypassDistance = false;
+  public FireAway(TurretMain turret, boolean bypassDistance) {
+    this(turret);
+    this.bypassDistance = bypassDistance;
+  }
 
   // Called when the command is initially scheduled.
   @Override
@@ -51,7 +56,7 @@ public class FireAway extends Command {
   public void execute() {
     if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
       // BLUE ALLIANCE --> is closer to x = 0
-      if (swerve.getPose().getX() < Constants.PathplannerConstants.blueAllianceShootPreventionX) {
+      if (swerve.getPose().getX() < Constants.PathplannerConstants.blueAllianceShootPreventionX || bypassDistance) {
 
         if (Robot.isSimulation())
           tryShootSimFuel();
@@ -64,7 +69,7 @@ public class FireAway extends Command {
       }
     } else {
       // RED ALLIANCE
-      if (swerve.getPose().getX() > Constants.PathplannerConstants.redAllianceShootPreventionX) {
+      if (swerve.getPose().getX() > Constants.PathplannerConstants.redAllianceShootPreventionX || bypassDistance) {
 
         if (Robot.isSimulation())
           tryShootSimFuel();
