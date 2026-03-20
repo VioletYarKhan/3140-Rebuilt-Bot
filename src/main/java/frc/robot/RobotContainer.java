@@ -18,6 +18,7 @@ import frc.robot.commands.auto.L2R_Neutral;
 import frc.robot.commands.auto.Pickup_Outpost_Shoot;
 import frc.robot.commands.auto.R2L_Neutral;
 import frc.robot.commands.auto.SimpleShoot;
+import frc.robot.commands.auto.SuperSimpleShoot;
 import frc.robot.commands.swerveDrive.Drive;
 import frc.robot.commands.turret.FireAway;
 import frc.robot.libs.FieldAprilTags;
@@ -77,6 +78,7 @@ public class RobotContainer {
     Path.setDefaultOption("Normal - No PathPlanner", null);
     Path.addOption("Simple Mobility", "SM");
     Path.addOption("Simple Shoot", "SS");
+    Path.addOption("Super Simple Shoot", "SSS");
     Path.addOption("L2R Neutral", "L2R");
     Path.addOption("R2L Neutral", "R2L");
     Path.addOption("Outpost", "O");
@@ -125,6 +127,9 @@ public class RobotContainer {
           // Simple Shoot
           autoCommand = new SimpleShoot();
           break;
+        case "SSS":
+          autoCommand = new SuperSimpleShoot();
+          break;
 
         case "L2R":
           // Left-to-Right neutral path with shooting
@@ -169,6 +174,10 @@ public class RobotContainer {
         case "SS":
           // Simple Shoot
           autoCommand = new SimpleShoot();
+          break;
+
+        case "SSS":
+          autoCommand = new SuperSimpleShoot();
           break;
 
         case "L2R":

@@ -43,7 +43,7 @@ public class Intake extends SubsystemBase {
   public DutyCycleEncoderSim intakeEncoderSim = new DutyCycleEncoderSim(intakeEncoderL);
 
   private double gravityFeedFowardConstant = 0;
-  private double separationConstant = 2;
+  private double separationConstant = Robot.isReal() ? 2 : 0.000;
   private double intakeSetpoint = Constants.Limits.Intake.stowedPosition;
 
   private TurretMain.LoggedPIDInputs intakePIDInputs = new TurretMain.LoggedPIDInputs(

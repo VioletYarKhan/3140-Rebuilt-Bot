@@ -48,8 +48,8 @@ public class TurretMain extends SubsystemBase {
   /////////////////////////////////////////////////////////////////////
   /// TUNING VOLTAGE OVERRIDE ///
   /////////////////////////////////////////////////////////////////////
-  public static boolean flywheelRPMOverride = true;
-  public static boolean hoodAngleOverride = true;
+  public static boolean flywheelRPMOverride = false;
+  public static boolean hoodAngleOverride = false;
 
   private Pose3d turretPose = Constants.SIM.turretMechOffset;
 
@@ -399,9 +399,8 @@ public class TurretMain extends SubsystemBase {
     boolean stow = shouldStow();
     shouldShoot = shouldShootMode && !stow;
 
-    hoodAngleOverride = true;
     hoodPID.setSetpoint(hoodAngleOverride ? NetworkTables.hoodAngle_d.getDouble(0) : stow ? 0 : hoodSetpoint);
-    rotationProfiledPID.setSetpoint(turretSetpoint);
+    rotationProfiledPID.setSetpoint(Math.min(Constants.Limits.Turret.maxYaw, Math.max(turretSetpoint, Constants.Limits.Turret.minYaw)));
     hoodMotor.set(hoodPID.calculate(getHoodEncoderAngle()));
 
     double encoderValue = getTurretEncoderAngle();
@@ -409,7 +408,7 @@ public class TurretMain extends SubsystemBase {
     turretRotationMotor.set(output);
 
 
-    if(true || flywheelRPMOverride) {
+    if(flywheelRPMOverride) {
       flywheelSetpoint = NetworkTables.flywheelRPMOverride_d.getDouble(0); 
     }
     if (spinup) {

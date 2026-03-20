@@ -119,19 +119,19 @@ public final class Constants {
 
   public static class PID {
     public static class Turret {
-      public static final double hoodP = 0.005; // PH TUNED
+      public static final double hoodP = Robot.isReal() ? 0.005 : 0.001; // PH TUNED
       public static final double hoodI = 0; // PH TUNED
-      public static final double hoodD = 0.0001; // F TUNED
+      public static final double hoodD = Robot.isReal() ? 0.0001 : 0.000; // F TUNED
 
-      public static final double rotationP = 0.015;//0.0075;
-      public static final double rotationI = 0.0001;//0.000;
+      public static final double rotationP = Robot.isReal() ? 0.015 : 0.0015;//0.0075;
+      public static final double rotationI = Robot.isReal() ? 0.0001 : 0;//0.000;
       public static final double rotationD = 0.0000;//.00015;
 
     }
 
     public static class Intake {
-      public static final double intakeP = 1.5; // TUNED
-      public static final double intakeI = 0.008; // TUNED
+      public static final double intakeP = Robot.isReal() ? 1.5 : 0.15; // TUNED
+      public static final double intakeI = Robot.isReal() ? 0.008 : 0.000; // TUNED
       public static final double intakeD = 0.00; // TUNED
     }
   }

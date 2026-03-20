@@ -144,7 +144,7 @@ public class PoseOdometry extends Odometry {
 
   public void resetGyro() {
     NavXSim.getInstance().reset(0);
-    resetGyroCamera(0);
+    resetGyroCamera(Math.PI);
   }
 
   public void resetGyroCamera(double correctAngle) {
