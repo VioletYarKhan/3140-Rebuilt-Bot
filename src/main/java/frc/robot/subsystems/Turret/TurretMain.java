@@ -399,7 +399,7 @@ public class TurretMain extends SubsystemBase {
             Math.min(Constants.Limits.Turret.maxPitch, hoodSetpoint));
         turretSetpoint = type.rotationAngle;
         boolean hadToClamp = clampTurretSetpoint();
-        shouldShootMode = type.shouldShoot && !hadToClamp;
+        shouldShootMode = type.shouldShoot && hadToClamp;
       }
     }
 

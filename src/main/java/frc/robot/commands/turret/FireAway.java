@@ -56,6 +56,7 @@ public class FireAway extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    System.out.println("Shooting, " + bypassDistance);
     if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
       // BLUE ALLIANCE --> is closer to x = 0
       if (swerve.getPose().getX() < Constants.PathplannerConstants.blueAllianceShootPreventionX || bypassDistance) {
