@@ -159,14 +159,14 @@ public class PoseOdometry extends Odometry {
   @Override
   public void updatePosition(SwerveModulePosition[] positions) {
     SwerveDrive drive = SwerveDrive.getInstance();
-    double stdDev = 2.5;
+    double stdDev = 1.5;
     if (estimator == null) {
       estimator = new SwerveDrivePoseEstimator(
           drive.kinematics,
           getGyroRotation(),
           positions,
           new Pose2d());
-      estimator.setVisionMeasurementStdDevs(VecBuilder.fill(stdDev, stdDev, Units.degreesToRadians(15)));
+      estimator.setVisionMeasurementStdDevs(VecBuilder.fill(stdDev, stdDev, Units.degreesToRadians(10)));
 
       if (RobotBase.isSimulation()) {
         simEstimator = new SwerveDrivePoseEstimator(
@@ -179,7 +179,7 @@ public class PoseOdometry extends Odometry {
             getGyroRotation(),
             positions,
             simStartingPose);
-        simDriftEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(stdDev, stdDev, Units.degreesToRadians(15)));
+        simDriftEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(stdDev, stdDev, Units.degreesToRadians(10)));
       }
     }
 

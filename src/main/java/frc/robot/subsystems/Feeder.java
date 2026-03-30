@@ -19,6 +19,9 @@ public class Feeder extends SubsystemBase {
 
   private boolean feederActive = false;
   private boolean feederInverted = false;
+  private boolean feederInvertOverride = false;
+  private double filteredCurrent = 0;
+  private final double ALPHA = 0.05;
 
   private final SparkMax feederMotor = new SparkMax(frc.robot.Constants.MotorIDs.feederMotor,
       SparkMax.MotorType.kBrushless);
@@ -43,7 +46,7 @@ public class Feeder extends SubsystemBase {
   /** Creates a new Feeder. */
   public Feeder() {
     SparkMaxConfig config = new SparkMaxConfig();
-    config.smartCurrentLimit(40);
+    config.smartCurrentLimit(60);
     feederMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     config.inverted(true);
     rollerMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
@@ -51,10 +54,14 @@ public class Feeder extends SubsystemBase {
 
   @Override
   public void periodic() {
+    // Low pass filter, (I chatgpted everywhere)
+    filteredCurrent = filteredCurrent * (1 - ALPHA) + feederMotor.getOutputCurrent() * ALPHA;
+    //feederInvertOverride = filteredCurrent > 50;  
+
     // This method will be called once per scheduler run
     if (feederActive) {
-      feederMotor.set(Constants.MotorSpeeds.Feeder.rollerSpeed * (feederInverted ? -1 : 1));
-      rollerMotor.set(Constants.MotorSpeeds.Feeder.feederSpeed * (feederInverted ? -1 : 1));
+      feederMotor.set(Constants.MotorSpeeds.Feeder.rollerSpeed * ((feederInverted || feederInvertOverride) ? -1 : 1));
+      rollerMotor.set(Constants.MotorSpeeds.Feeder.feederSpeed * ((feederInverted || feederInvertOverride) ? -1 : 1));
 
       if (Robot.isSimulation()) {
         TurretMain.getInstance().shootSimFuel();

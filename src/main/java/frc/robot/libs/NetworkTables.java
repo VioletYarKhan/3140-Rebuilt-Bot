@@ -96,6 +96,7 @@ public class NetworkTables {
     public static NetworkTableEntry intakeLeftEncoder = misc.getEntry("intakeLeftEncoder_d");
     public static NetworkTableEntry intakeRightEncoder = misc.getEntry("intakeRightEncoder_d");
     public static NetworkTableEntry intakeGravityConstant = misc.getEntry("intakeGravityConstant_d");
+    public static NetworkTableEntry flywheelPVoltage_d = misc.getEntry("flywheelPVoltage_d");
     public static NetworkTableEntry intakeLeftSideHorizontalAngle = misc.getEntry("intakeLeftSideHorizontalAngle_d");
     public static NetworkTableEntry intakeRightSideHorizontalAngle = misc.getEntry("intakeRightSideHorizontalAngle_d");
     public static NetworkTableEntry intakeSeparationConstant = misc.getEntry("intakeSeparationConstant_d");

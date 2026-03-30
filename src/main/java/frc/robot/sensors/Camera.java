@@ -120,16 +120,16 @@ public class Camera extends SubsystemBase {
    */
   private Camera() {
     visionSim.addAprilTags(layout);
-
+    
     cameraProp.setCalibration(640, 480, Rotation2d.fromDegrees(100));
     cameraProp.setCalibError(0.25, 0.08);
     cameraProp.setFPS(60);
     cameraProp.setAvgLatencyMs(35);
     cameraProp.setLatencyStdDevMs(5);
-
+    
     visionSim.addCamera(oneCameraSim, oneToBot);
     visionSim.addCamera(twoCameraSim, twoToBot);
-
+    
     oneEstimator.setPrimaryStrategy(PoseStrategy.AVERAGE_BEST_TARGETS);
     twoEstimator.setPrimaryStrategy(PoseStrategy.AVERAGE_BEST_TARGETS);
   }
@@ -312,3 +312,36 @@ public class Camera extends SubsystemBase {
     }
   }
 }
+
+///
+///       Red                      <----- Zero Angle                       Blue
+///                            <--- 0 degrees    180 degrees ---->     X  <-----
+///   ---  +-------------------------------------------------------------------+ (0, 0)
+///    ^   |                7  6              |             17 28           29 |  
+///    |   |                                  |                             30 |  |
+///    |   |                                  |                                |  |
+///    |   |                                  |                                |  V
+///    |   |                                  |                                |
+///    |   |                8  5              |             18 27              |  Y
+/// 8.07 m | 16          9       4            |          19       26        31 |
+///    |   | 15         10       3            |          20       25        32 |
+///    |   |               11  2              |             21 24              |
+///    |   |                                  |                                |
+///    |   |                                  |                                |
+///    |   | 14                               |                                |
+///    V   | 13            12  1              |             22 23              |
+///   ---  +-------------------------------------------------------------------+
+///        |<----------------------------- 16.56 m --------------------------->|
+///    
+///
+/// One:
+/// Unprocessed: http://10.31.40.67:1183/stream.mjpg
+/// Processed: http://10.31.40.67:1184/stream.mjpg
+///
+/// Two:
+/// Unprocessed: http://10.31.40.67:1185/stream.mjpg
+/// Processed http://10.31.40.67:1186/stream.mjpg
+///
+/// Intake: http://10.31.40.67:1182/stream.mjpg
+///
+///

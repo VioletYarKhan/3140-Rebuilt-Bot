@@ -23,12 +23,15 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -49,7 +52,7 @@ public class TurretMain extends SubsystemBase {
   /////////////////////////////////////////////////////////////////////
   /// TUNING VOLTAGE OVERRIDE ///
   /////////////////////////////////////////////////////////////////////
-  public static boolean flywheelRPMOverride = true;
+  public static boolean flywheelRPMOverride = false;
   public static boolean hoodAngleOverride = false;
 
   private Pose3d turretPose = Constants.SIM.turretMechOffset;
@@ -65,7 +68,7 @@ public class TurretMain extends SubsystemBase {
   public SparkMaxSim hoodMotorSim;
   // ROBOT WIN = TRUE
   public DutyCycleEncoder hoodEncoder = new DutyCycleEncoder(Constants.SensorIDs.hoodEncoder,
-      360 / Constants.Bot.hoodGearRatio, -21);
+      360 / Constants.Bot.hoodGearRatio, -21 + 77.5);
   public DutyCycleEncoderSim hoodEncoderSim = new DutyCycleEncoderSim(hoodEncoder);
   public Encoder turretEncoder = new Encoder(Constants.SensorIDs.turretEncoderA, Constants.SensorIDs.turretEncoderB);
   public EncoderSim turretEncoderSim = new EncoderSim(turretEncoder);
@@ -106,19 +109,28 @@ public class TurretMain extends SubsystemBase {
       Constants.PID.Turret.hoodI,
       Constants.PID.Turret.hoodD);
 
-  public PIDController rotationProfiledPID = new PIDController(0, 0, 0);
-  public LoggedPIDInputs rotationPIDInputs = new LoggedPIDInputs("RotationPID",
-      Constants.PID.Turret.rotationP,
-      Constants.PID.Turret.rotationI,
-      Constants.PID.Turret.rotationD);
+  public Constraints turretConstraints = new TrapezoidProfile.Constraints(0, 0);
+  public ProfiledPIDController turretPID = new ProfiledPIDController(0, 0, 0, turretConstraints);
+  public LoggedPIDInputs turretPIDInputs = new LoggedPIDInputs("RotationPID",
+      Constants.PID.Turret.turretP,
+      Constants.PID.Turret.turretI,
+      Constants.PID.Turret.turretD);
+
+  public SimpleMotorFeedforward turretFeedforward;
+  public LoggedPIDInputs turretFeedforwardInputs = new LoggedPIDInputs("TurretFeedfoward",
+      Constants.FeedFoward.Turret.turretS,
+      Constants.FeedFoward.Turret.turretV,
+      Constants.FeedFoward.Turret.turretA);
 
   public SimpleMotorFeedforward flywheelFeedforward;
-  public LoggedPIDInputs flywheelFeedfowardInputs = new LoggedPIDInputs("FlywheelFeedforward",
+  public LoggedPIDInputs flywheelFeedforwardInputs = new LoggedPIDInputs("FlywheelFeedforward",
       Constants.FeedFoward.Turret.flywheelS,
       Constants.FeedFoward.Turret.flywheelV,
       Constants.FeedFoward.Turret.flywheelA);
   private boolean spinup = false;
   private double flywheelSpeedTolerance = 500; // RPM
+  
+  private double flywheelFeedbackP = Constants.PID.Turret.flywheelP;
 
 
   public enum AimOpt {
@@ -248,14 +260,20 @@ public class TurretMain extends SubsystemBase {
     NetworkTables.flywheelAdjustmantConstantM_d.setDouble(flywheelAdjustmantConstantM);
     NetworkTables.flywheelAdjustmantConstantB_d.setDouble(flywheelAdjustmantConstantB);
     NetworkTables.hoodAngle_d.setDouble(0);
+    NetworkTables.flywheelPVoltage_d.setDouble(0);
 
     hoodPID.setPID(hoodPIDInputs.getP(), hoodPIDInputs.getI(), hoodPIDInputs.getD());
     hoodPID.enableContinuousInput(0, 360);
-    rotationProfiledPID.setPID(rotationPIDInputs.getP(), rotationPIDInputs.getI(), rotationPIDInputs.getD());
+    turretPID.setPID(turretPIDInputs.getP(), turretPIDInputs.getI(), turretPIDInputs.getD());
     flywheelFeedforward = new SimpleMotorFeedforward(
-        flywheelFeedfowardInputs.getP(),
-        flywheelFeedfowardInputs.getI(),
-        flywheelFeedfowardInputs.getD());
+        flywheelFeedforwardInputs.getP(),
+        flywheelFeedforwardInputs.getI(),
+        flywheelFeedforwardInputs.getD());
+
+    turretFeedforward = new SimpleMotorFeedforward(
+        turretFeedforwardInputs.getP(),
+        turretFeedforwardInputs.getI(),
+        turretFeedforwardInputs.getD());
 
     SparkMaxConfig turretConfig = new SparkMaxConfig();
     SparkFlexConfig flywheelConfig = new SparkFlexConfig();
@@ -266,7 +284,6 @@ public class TurretMain extends SubsystemBase {
     flywheelConfig.idleMode(IdleMode.kCoast).inverted(true)
         .smartCurrentLimit(Constants.CurrentLimits.Turret.flywheelLimit);
 
-    rotationProfiledPID.setIntegratorRange(-0.15, 0.15);
 
     turretRotationMotor.configure(turretConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     hoodMotor.configure(hoodConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -365,20 +382,25 @@ public class TurretMain extends SubsystemBase {
   public void periodic() {
 
     hoodPID.setPID(hoodPIDInputs.getP(), hoodPIDInputs.getI(), hoodPIDInputs.getD());
-    rotationProfiledPID.setPID(rotationPIDInputs.getP(), rotationPIDInputs.getI(), rotationPIDInputs.getD());
-    flywheelFeedforward.setKs(flywheelFeedfowardInputs.getP());
-    flywheelFeedforward.setKv(flywheelFeedfowardInputs.getI());
-    flywheelFeedforward.setKa(flywheelFeedfowardInputs.getD());
+    turretPID.setPID(turretPIDInputs.getP(), turretPIDInputs.getI(), turretPIDInputs.getD());
+    flywheelFeedforward.setKs(flywheelFeedforwardInputs.getP());
+    flywheelFeedforward.setKv(flywheelFeedforwardInputs.getI());
+    flywheelFeedforward.setKa(flywheelFeedforwardInputs.getD());
+
+    turretFeedforward.setKs(turretFeedforwardInputs.getP());
+    turretFeedforward.setKv(turretFeedforwardInputs.getI());
+    turretFeedforward.setKa(turretFeedforwardInputs.getD());
 
     flywheelAdjustmantConstantB = NetworkTables.flywheelAdjustmantConstantB_d.getDouble(0);
     flywheelAdjustmantConstantM = NetworkTables.flywheelAdjustmantConstantM_d.getDouble(1);
+    flywheelFeedbackP = NetworkTables.flywheelPVoltage_d.getDouble(0);
 
     double turretEnc = getTurretEncoderAngle();
     hoodPIDInputs.update(hoodSetpoint, getHoodEncoderAngle());
-    rotationPIDInputs.update(turretSetpoint, turretEnc);
-    flywheelFeedfowardInputs.update(flywheelSetpoint, flywheelMotor.getEncoder().getVelocity());
+    turretPIDInputs.update(turretSetpoint, turretEnc);
+    flywheelFeedforwardInputs.update(flywheelSetpoint, flywheelMotor.getEncoder().getVelocity());
+    flywheelFeedforwardInputs.update(flywheelSetpoint, flywheelMotor.getEncoder().getVelocity());
 
-    rotationProfiledPID.setSetpoint(turretSetpoint);
 
     if (!TestRunner.getInstance().isRunning(TestType.TURRET)) {
       if (lastUpdateTimestamp == 0) {
@@ -415,19 +437,19 @@ public class TurretMain extends SubsystemBase {
     shouldShoot = shouldShootMode && !stow;
 
     hoodPID.setSetpoint(hoodAngleOverride ? NetworkTables.hoodAngle_d.getDouble(0) : stow ? 0 : hoodSetpoint);
-    rotationProfiledPID.setSetpoint(
-        Math.min(Constants.Limits.Turret.maxYaw, Math.max(turretSetpoint, Constants.Limits.Turret.minYaw)));
     hoodMotor.set(hoodPID.calculate(getHoodEncoderAngle()));
 
     double encoderValue = getTurretEncoderAngle();
-    double output = rotationProfiledPID.calculate(encoderValue);
+    double output = turretPID.calculate(encoderValue, Math.min(Constants.Limits.Turret.maxYaw, Math.max(turretSetpoint, Constants.Limits.Turret.minYaw)));
+    output += turretFeedforward.calculate(turretPID.getSetpoint().velocity);
     turretRotationMotor.set(output);
 
     if (flywheelRPMOverride) {
       flywheelSetpoint = NetworkTables.flywheelRPMOverride_d.getDouble(0);
     }
+
     if (spinup) {
-      flywheelMotor.set(flywheelFeedforward.calculate(flywheelSetpoint) / 12);
+      flywheelMotor.set(flywheelFeedforward.calculate(flywheelSetpoint) / 12 + flywheelFeedbackP * (flywheelSetpoint - flywheelMotor.getEncoder().getVelocity()));
     } else {
       flywheelMotor.setVoltage(0);
     }

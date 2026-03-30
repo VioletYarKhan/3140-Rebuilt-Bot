@@ -34,7 +34,7 @@ public class Intake extends SubsystemBase {
   private SparkMax intakeRollerMotor = new SparkMax(Constants.MotorIDs.intakeMotor, SparkMax.MotorType.kBrushless);
   public SparkMaxSim intakeArmMotorSim;
 
-  private double rightEncoderOffset = -0.132;
+  private double rightEncoderOffset = -0.132 - 0.1895;
 
   public DutyCycleEncoder intakeEncoderL = new DutyCycleEncoder(Constants.SensorIDs.intakeEncoderL, 1,
       Constants.Limits.Intake.leftOffset);
@@ -44,6 +44,7 @@ public class Intake extends SubsystemBase {
 
   private double gravityFeedFowardConstant = 0;
   private double separationConstant = Robot.isReal() ? 2 : 0.000;
+  private double separationConstantThreshold = 2.5;
   private double intakeSetpoint = Constants.Limits.Intake.stowedPosition;
 
   private TurretMain.LoggedPIDInputs intakePIDInputs = new TurretMain.LoggedPIDInputs(
@@ -178,10 +179,10 @@ public class Intake extends SubsystemBase {
     intakePIDR.setD(intakePIDInputs.getD());
 
     intakePIDInputs.update(intakeSetpoint, intakeEncoderL.get());
-    intakeArmMotorL.set(separationConstant * (getAngleDifference(getLeftSideAngle(), getRightSideAngle()) / 360)
-        + intakePIDL.calculate(intakeEncoderL.get(), intakeSetpoint)
+    intakeArmMotorL.set((Math.abs(getAngleDifference(getLeftSideAngle(), getRightSideAngle())) < separationConstantThreshold? 0 : 1) *separationConstant * (getAngleDifference(getLeftSideAngle(), getRightSideAngle()) / 360)
+        + intakePIDL.calculate( intakeEncoderL.get(), intakeSetpoint)
         - gravityFeedFowardConstant * Math.sin(getLeftSideAngle() * Math.PI / 180));
-    intakeArmMotorR.set(separationConstant * (getAngleDifference(getRightSideAngle(), getLeftSideAngle()) / 360)
+    intakeArmMotorR.set((Math.abs(getAngleDifference(getLeftSideAngle(), getRightSideAngle())) < separationConstantThreshold? 0 : 1) * separationConstant * (getAngleDifference(getRightSideAngle(), getLeftSideAngle()) / 360)
         + intakePIDR.calculate(getRightAngle(), intakeSetpoint)
         - gravityFeedFowardConstant * Math.sin(getRightSideAngle() * Math.PI / 180));
 
