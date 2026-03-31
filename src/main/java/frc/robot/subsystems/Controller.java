@@ -25,13 +25,23 @@ public class Controller extends SubsystemBase {
 
   public final XboxController primaryController;
 
-  private boolean rightTriggerTriggeredPrimary = false;
-  private boolean leftTriggerTriggeredPrimary = false;
-
   public final XboxController secondaryController;
 
-  private boolean rightTriggerTriggeredSecondary = false;
-  private boolean leftTriggerTriggeredSecondary = false;
+  static boolean linuxSim = true && Robot.isSimulation();
+  enum AxisMapping {
+    LEFT_X(linuxSim ? 0 : 0),
+    RIGHT_X(linuxSim ? 2 : 4),
+    LEFT_Y(linuxSim ? 1 : 1),
+    RIGHT_Y(linuxSim ? 3 : 5),
+    LEFT_TRIGGER(linuxSim ? 4 : 2),
+    RIGHT_TRIGGER(linuxSim ? 5 : 3);
+
+    public int axisValue;
+
+    AxisMapping(int axisValue) {
+      this.axisValue = axisValue;
+    }
+  }
 
   /** Creates a new Controller. */
   public Controller(int primary, int secondary) {
@@ -64,56 +74,23 @@ public class Controller extends SubsystemBase {
 
   public boolean getLeftTriggerTriggered(controllers controller) {
     XboxController contr = (controller == controllers.PRIMARY ? primaryController : secondaryController);
-
-    boolean trigger = contr.getLeftTriggerAxis() > triggerThreshold;
-
-    if (trigger) {
-      if (controller == controllers.PRIMARY) {
-        if (leftTriggerTriggeredPrimary) {
-          return false;
-        }
-        leftTriggerTriggeredPrimary = true;
-      } else {
-        if (leftTriggerTriggeredSecondary) {
-          return false;
-        }
-        leftTriggerTriggeredSecondary = true;
-      }
-      return true;
-    } else {
-      if (controller == controllers.PRIMARY) {
-        leftTriggerTriggeredPrimary = false;
-      } else {
-        leftTriggerTriggeredSecondary = false;
-      }
-      return false;
-    }
+    return contr.getRawAxis(AxisMapping.LEFT_TRIGGER.axisValue) > triggerThreshold;
   }
 
   public boolean getRightTriggerTriggered(controllers controller) {
     XboxController contr = (controller == controllers.PRIMARY ? primaryController : secondaryController);
 
-    boolean trigger = contr.getRightTriggerAxis() > triggerThreshold;
-
-    if (trigger) {
-      if (controller == controllers.PRIMARY) {
-        rightTriggerTriggeredPrimary = true;
-      } else {
-        rightTriggerTriggeredSecondary = true;
-      }
-      return trigger;
-    } else {
-      return false;
-    }
+    return contr.getRawAxis(AxisMapping.RIGHT_TRIGGER.axisValue) > triggerThreshold;
   }
 
   public double getLeftX(controllers controller) {
     XboxController contr = (controller == controllers.PRIMARY ? primaryController : secondaryController);
-    if (Math.abs(contr.getLeftX()) > deadband) {
-      if (contr.getLeftX() > 0)
-        return Math.pow(contr.getLeftX(), 2);
+    double x = contr.getRawAxis(AxisMapping.LEFT_X.axisValue);
+    if (Math.abs(x) > deadband) {
+      if (x > 0)
+        return Math.pow(x, 2);
       else
-        return -Math.pow(contr.getLeftX(), 2);
+        return -Math.pow(x, 2);
 
     } else {
       return 0;
@@ -122,11 +99,12 @@ public class Controller extends SubsystemBase {
 
   public double getRightX(controllers controller) {
     XboxController contr = (controller == controllers.PRIMARY ? primaryController : secondaryController);
-    if (Math.abs(contr.getRightX()) > deadband) {
-      if (contr.getRightX() > 0)
-        return Math.pow(contr.getRightX(), 2);
+    double x = contr.getRawAxis(AxisMapping.RIGHT_X.axisValue);
+    if (Math.abs(x) > deadband) {
+      if (x > 0)
+        return Math.pow(x, 2);
       else
-        return -Math.pow(contr.getRightX(), 2);
+        return -Math.pow(x, 2);
     } else {
       return 0;
     }
@@ -134,11 +112,12 @@ public class Controller extends SubsystemBase {
 
   public double getLeftY(controllers controller) {
     XboxController contr = (controller == controllers.PRIMARY ? primaryController : secondaryController);
-    if (Math.abs(contr.getLeftY()) > deadband) {
-      if (contr.getLeftY() > 0)
-        return Math.pow(contr.getLeftY(), 2);
+    double y = contr.getRawAxis(AxisMapping.LEFT_Y.axisValue);
+    if (Math.abs(y) > deadband) {
+      if (y > 0)
+        return Math.pow(y, 2);
       else
-        return -Math.pow(contr.getLeftY(), 2);
+        return -Math.pow(y, 2);
 
     } else {
       return 0;
@@ -147,11 +126,12 @@ public class Controller extends SubsystemBase {
 
   public double getRightY(controllers controller) {
     XboxController contr = (controller == controllers.PRIMARY ? primaryController : secondaryController);
-    if (Math.abs(contr.getRightY()) > deadband) {
-      if (contr.getRightY() > 0)
-        return Math.pow(contr.getRightY(), 2);
+    double y = contr.getRawAxis(AxisMapping.RIGHT_Y.axisValue);
+    if (Math.abs(y) > deadband) {
+      if (y > 0)
+        return Math.pow(y, 2);
       else
-        return -Math.pow(contr.getRightY(), 2);
+        return -Math.pow(y, 2);
     } else {
       return 0;
     }
@@ -242,7 +222,7 @@ public class Controller extends SubsystemBase {
     Intake.getInstance()
         .intake(primaryController.getLeftBumperButton() ? (NetworkTables.intakeRollerSpeed_d.getDouble(Constants.MotorSpeeds.Intake.intakeSpeed)) : (primaryController.getPOV() == 0 ? Constants.MotorSpeeds.Intake.outtakeSpeed: 0));
 
-    TurretMain.getInstance().setFlywheelActive(primaryController.getRightTriggerAxis() > triggerThreshold);
+    TurretMain.getInstance().setFlywheelActive(getRightTriggerTriggered(controllers.PRIMARY));
 
     if (primaryController.getXButtonPressed()) {
       if (Intake.getInstance().isStowed()) {
@@ -376,22 +356,6 @@ public class Controller extends SubsystemBase {
       default:
         // Integral to the code base DO NOT CHANGE! (Copilot did it!)
         throw new IllegalStateException("Invalid control mode: \n Nuh uh, no way, not gonna happen");
-    }
-
-    if (leftTriggerTriggeredPrimary && primaryController.getLeftTriggerAxis() < triggerThreshold) {
-      leftTriggerTriggeredPrimary = false;
-    }
-
-    if (rightTriggerTriggeredPrimary && primaryController.getRightTriggerAxis() < triggerThreshold) {
-      rightTriggerTriggeredPrimary = false;
-    }
-
-    if (leftTriggerTriggeredSecondary && secondaryController.getLeftTriggerAxis() < triggerThreshold) {
-      leftTriggerTriggeredSecondary = false;
-    }
-
-    if (rightTriggerTriggeredSecondary && secondaryController.getRightTriggerAxis() < triggerThreshold) {
-      rightTriggerTriggeredSecondary = false;
     }
   }
 }

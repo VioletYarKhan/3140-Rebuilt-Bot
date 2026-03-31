@@ -248,12 +248,12 @@ public class TurretMain extends SubsystemBase {
 
     // TODO: do the flywheel stuff. The angle and speed seem to be independent so we
     // only need to test the RPM to speed at one angle
-    projectileSpeedToFlywheelSpeed.put(4.6, 3000.0);
-    projectileSpeedToFlywheelSpeed.put(9.15, 6000.0);
+    projectileSpeedToFlywheelSpeed.put(5.35, 3000.0);
+    projectileSpeedToFlywheelSpeed.put(11.819, 6000.0);
     // projectileSpeedToFlywheelSpeed.put(0.0, 0.0);
 
-    flywheelSpeedToProjectileSpeed.put(6000.0, 4.6);
-    flywheelSpeedToProjectileSpeed.put(6000.0, 9.15);
+    flywheelSpeedToProjectileSpeed.put(3000.0, 5.35);
+    flywheelSpeedToProjectileSpeed.put(6000.0, 11.819);
     // flywheelSpeedToProjectileSpeed.put(0.0, 0.0);
 
     NetworkTables.flywheelRPMOverride_d.setDouble(5000);

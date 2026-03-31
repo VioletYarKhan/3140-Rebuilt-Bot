@@ -124,7 +124,7 @@ public final class Constants {
       public static final double hoodD = Robot.isReal() ? 0.0001 : 0.000; // F TUNED
 
       public static final double turretP = Robot.isReal() ? 0.0080 : 0.0015;// 0.0075;
-      public static final double turretI = Robot.isReal() ? 0.000 : 0;// 0.000;
+      public static final double turretI = Robot.isReal() ? 0.00010 : 0;// 0.000;
       public static final double turretD = 0.0000;// .00015;
 
       public static final double turretMaxVel = 360 / 2;
@@ -146,8 +146,8 @@ public final class Constants {
       public static final double flywheelV = Robot.isReal() ? 0.001855 : 0.001755; // FISICALY TUNEED
       public static final double flywheelA = 0.0; // TUNED
 
-      public static final double turretS = 0.002;
-      public static final double turretV = 0.02;
+      public static final double turretS = 0.02;
+      public static final double turretV = 0.025;
       public static final double turretA = 0;
     }
   }
@@ -169,7 +169,7 @@ public final class Constants {
   public static class Bot {
     public static final double gearRatio = 6.75;
     public static final double steerGearRatio = 150 / 7;
-    public static final double botMass = 48.988;
+    public static final double botMass = 47.174;
     public static final double wheelDiameter = Units.inchesToMeters(4);
     public static final double botLength = Units.inchesToMeters(26);
 
@@ -241,7 +241,7 @@ public final class Constants {
       public static final double maxPitch = 45;
       public static final double maxAngularVelocity = 1000000;// 30; // degrees per second
 
-      public static final double maxFuelVelocity = 9.18;
+      public static final double maxFuelVelocity = 12.5;
 
       public static final double minYaw = -90;
       public static final double maxYaw = 90;

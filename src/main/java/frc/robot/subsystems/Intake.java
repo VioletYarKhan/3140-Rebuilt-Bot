@@ -44,7 +44,7 @@ public class Intake extends SubsystemBase {
 
   private double gravityFeedFowardConstant = 0;
   private double separationConstant = Robot.isReal() ? 2 : 0.000;
-  private double separationConstantThreshold = 2.5;
+  private double separationConstantThreshold = 4;
   private double intakeSetpoint = Constants.Limits.Intake.stowedPosition;
 
   private TurretMain.LoggedPIDInputs intakePIDInputs = new TurretMain.LoggedPIDInputs(

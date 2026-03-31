@@ -9,9 +9,12 @@ import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
+import frc.robot.libs.NetworkTables;
 import frc.robot.subsystems.Turret.TurretMain;
 
 public class Feeder extends SubsystemBase {
@@ -52,11 +55,24 @@ public class Feeder extends SubsystemBase {
     rollerMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 
+  double jamTime = 0;
+  double unjamTime = 0;
+
   @Override
   public void periodic() {
+    NetworkTables.intakeCurrent.setDouble(feederMotor.getOutputCurrent());
     // Low pass filter, (I chatgpted everywhere)
     filteredCurrent = filteredCurrent * (1 - ALPHA) + feederMotor.getOutputCurrent() * ALPHA;
-    //feederInvertOverride = filteredCurrent > 50;  
+    if(Timer.getFPGATimestamp() - unjamTime > 0.1 && filteredCurrent > 55) {
+      feederInvertOverride = true;
+      jamTime = Timer.getFPGATimestamp();
+    }
+    if(Timer.getFPGATimestamp() - jamTime > 0.5 && feederInvertOverride) {
+      feederInvertOverride = false; 
+      unjamTime = Timer.getFPGATimestamp();
+    }
+    
+    NetworkTables.intakeCurrentFiltered.setDouble(filteredCurrent);
 
     // This method will be called once per scheduler run
     if (feederActive) {

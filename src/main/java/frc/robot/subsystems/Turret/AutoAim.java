@@ -17,7 +17,7 @@ import frc.robot.libs.Vector2;
 import frc.robot.subsystems.odometry.Odometry;
 
 public class AutoAim extends AimType {
-  private static double predictForwardTime = 0.2;
+  private static double predictForwardTime = 0.0;
   private static double predictForwardWhenCheckingMultiplier = 1; // Multiplies predict forward time when checking if
                                                                   // a shot will go in for should shoot
                                                                   // private LoggedNetworkNumber errorLog = new
@@ -49,10 +49,10 @@ public class AutoAim extends AimType {
       Units.inchesToMeters(Constants.PathplannerConstants.TopOfHubHeightInches - 3),
       true,
       new ShotPredictor.HeightBounds(
-          Units.inchesToMeters(21), // radius of hub top (flat side to flat side of hexagon)
+          Units.inchesToMeters(21 - 1), // radius of hub top (flat side to flat side of hexagon)
           Units.inchesToMeters(18 + Constants.PathplannerConstants.TopOfHubHeightInches
               + Constants.PathplannerConstants.FuelRadiusInches), // desired height
-          Units.inchesToMeters(8 + Constants.PathplannerConstants.TopOfHubHeightInches
+          Units.inchesToMeters(5 + Constants.PathplannerConstants.TopOfHubHeightInches
               + Constants.PathplannerConstants.FuelRadiusInches) // min height
       ),
       Units.inchesToMeters(21 - 5) // radius of hub top but less forgiving

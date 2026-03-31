@@ -100,6 +100,8 @@ public class NetworkTables {
     public static NetworkTableEntry intakeLeftSideHorizontalAngle = misc.getEntry("intakeLeftSideHorizontalAngle_d");
     public static NetworkTableEntry intakeRightSideHorizontalAngle = misc.getEntry("intakeRightSideHorizontalAngle_d");
     public static NetworkTableEntry intakeSeparationConstant = misc.getEntry("intakeSeparationConstant_d");
+    public static NetworkTableEntry intakeCurrent = misc.getEntry("intakeCurrent_d");
+    public static NetworkTableEntry intakeCurrentFiltered = misc.getEntry("intakeCurrentFiltered_d");
 
     public static NetworkTableEntry driveModeManual_b = misc.getEntry("driveModeManual_b");
     public static NetworkTableEntry fieldOriented_b = misc.getEntry("fieldOriented_b");
