@@ -1,12 +1,14 @@
 package frc.robot.subsystems.Turret;
 
 import edu.wpi.first.wpilibj.XboxController;
+import frc.robot.Constants;
 import frc.robot.subsystems.Controller;
+import frc.robot.subsystems.Controller.controllers;
+import frc.robot.subsystems.odometry.Odometry;
 
 public class ManualAim extends AimType {
-    private XboxController controller = Controller.getInstance().secondaryController;
 
-    private final double manualAimRotationSpeed = 60; // degrees per second
+    private final double manualAimRotationSpeed = 240; // degrees per second
     private final double manualAimHoodSpeed = 30; // degrees per second
 
     private double desiredRotationAngle = 0;
@@ -21,10 +23,11 @@ public class ManualAim extends AimType {
     @Override
     public void periodic(double deltaTime, double hoodMeasurement, double flywheelMeasurement,
             double rotationMeasurement) {
-        desiredRotationAngle += -controller.getRightX() * manualAimRotationSpeed * deltaTime;
-        hoodAngle += -controller.getLeftY() * manualAimHoodSpeed * deltaTime;
-        desiredRotationAngle = Math.max(-90, Math.min(desiredRotationAngle, 90));
-        rotationAngle = desiredRotationAngle; // - Odometry.getInstance().getRotation().getDegrees();
+        desiredRotationAngle += -Controller.getInstance().getRightX(controllers.SECONDARY) * manualAimRotationSpeed * deltaTime;
+        hoodAngle += -Controller.getInstance().getLeftY(controllers.SECONDARY) * manualAimHoodSpeed * deltaTime;
+        hoodAngle = Math.max(Constants.Limits.Turret.minPitch, Math.min(hoodAngle, Constants.Limits.Turret.maxPitch)); 
+        rotationAngle = Math.max(-90, Math.min(desiredRotationAngle - Odometry.getInstance().getRotation().getDegrees(), 90));
+        if (Math.abs(Controller.getInstance().getRightX(controllers.SECONDARY)) > 0.02 && (desiredRotationAngle < -90 || desiredRotationAngle > 90)) desiredRotationAngle = rotationAngle + Odometry.getInstance().getRotation().getDegrees();
 
         this.shouldShoot = true;
     }

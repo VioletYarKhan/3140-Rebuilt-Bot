@@ -1,0 +1,118 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 4.254164855702364,
+        "y": 7.320557686456884
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.254164855702364,
+        "y": 7.320557686456884
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.487978474878303,
+        "y": 6.99751461448192
+      },
+      "prevControl": {
+        "x": 7.231775234258414,
+        "y": 7.700270715279441
+      },
+      "nextControl": {
+        "x": 7.667415083883865,
+        "y": 6.505326571192629
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.487978474878303,
+        "y": 4.817116818063282
+      },
+      "prevControl": {
+        "x": 7.837608277555633,
+        "y": 3.4370844380215577
+      },
+      "nextControl": {
+        "x": 6.699406242998601,
+        "y": 7.929709639562824
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 4.254164855702364,
+        "y": 7.320557686456884
+      },
+      "prevControl": {
+        "x": 5.27079760300765,
+        "y": 7.27915290333797
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1.0329320287854906,
+      "rotationDegrees": -90.69338470893294
+    },
+    {
+      "waypointRelativePos": 1.8841494972397497,
+      "rotationDegrees": -89.02017293663147
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "Deploy intake",
+      "waypointRelativePos": 0.28108108108108104,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "DeployIntake"
+        }
+      }
+    },
+    {
+      "name": "FireAway",
+      "waypointRelativePos": 3.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "FireAway"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 2.0,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": true
+}

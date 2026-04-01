@@ -85,12 +85,12 @@ public class TurretMain extends SubsystemBase {
   public InterpolatingDoubleTreeMap flywheelSpeedToProjectileSpeed = new InterpolatingDoubleTreeMap();
   public InterpolatingDoubleTreeMap projectileSpeedToFlywheelSpeed = new InterpolatingDoubleTreeMap();
 
-  public double flywheelAdjustmantConstantM = 1; 
-  public double flywheelAdjustmantConstantB = 0; 
+  public double flywheelAdjustmantConstantM = 0.263157894737; 
+  public double flywheelAdjustmantConstantB = 2633; 
 
   double lastUpdateTimestamp = 0;
 
-  public static final double stowRange = 0.6; // meters
+  public static final double stowRange = .967; // meters
 
   @AutoLogOutput
   double hoodSetpoint = 0; // degrees
@@ -240,21 +240,37 @@ public class TurretMain extends SubsystemBase {
 
   /** Creates a new Turret. */
   public TurretMain() {
+
+    hoodAngleToProjectileAngle.put(10.0, 90.0);
     hoodAngleToProjectileAngle.put(20.0, 80.0);
     hoodAngleToProjectileAngle.put(37.5, 56.15);
+    hoodAngleToProjectileAngle.put(42.5, 50.00);
 
+    hoodAngleToProjectileAngle.put(90.0, 10.0);
     projectileAngleToHoodAngle.put(80.0, 20.0);
     projectileAngleToHoodAngle.put(56.15, 37.5);
+    projectileAngleToHoodAngle.put(50.00, 42.5);
 
-    // TODO: do the flywheel stuff. The angle and speed seem to be independent so we
-    // only need to test the RPM to speed at one angle
-    projectileSpeedToFlywheelSpeed.put(5.35, 3000.0);
-    projectileSpeedToFlywheelSpeed.put(11.819, 6000.0);
-    // projectileSpeedToFlywheelSpeed.put(0.0, 0.0);
 
-    flywheelSpeedToProjectileSpeed.put(3000.0, 5.35);
-    flywheelSpeedToProjectileSpeed.put(6000.0, 11.819);
-    // flywheelSpeedToProjectileSpeed.put(0.0, 0.0);
+    projectileSpeedToFlywheelSpeed.put( 0.0, 1000.0);
+    projectileSpeedToFlywheelSpeed.put( 5.18226, 3000.0);
+    projectileSpeedToFlywheelSpeed.put( 6.4485563, 3500.0);
+    projectileSpeedToFlywheelSpeed.put( 7.7033197, 4000.0);
+    projectileSpeedToFlywheelSpeed.put( 8.6498802, 4500.0);
+    projectileSpeedToFlywheelSpeed.put( 9.7442698, 5000.0);
+    projectileSpeedToFlywheelSpeed.put( 10.557472, 5500.0);
+    projectileSpeedToFlywheelSpeed.put( 11.04, 6000.0);
+    projectileSpeedToFlywheelSpeed.put( 11.5, 7000.0);
+
+    flywheelSpeedToProjectileSpeed.put(1000.0, 0.0);
+    flywheelSpeedToProjectileSpeed.put(3000.0, 5.18226);
+    flywheelSpeedToProjectileSpeed.put(3500.0, 6.4485563);
+    flywheelSpeedToProjectileSpeed.put(4000.0, 7.7033197);
+    flywheelSpeedToProjectileSpeed.put(4500.0, 8.6498802);
+    flywheelSpeedToProjectileSpeed.put(5000.0, 9.7442698);
+    flywheelSpeedToProjectileSpeed.put(5500.0, 10.557472);
+    flywheelSpeedToProjectileSpeed.put(6000.0, 11.04);
+    flywheelSpeedToProjectileSpeed.put(7000.0, 11.5);
 
     NetworkTables.flywheelRPMOverride_d.setDouble(5000);
     NetworkTables.flywheelAdjustmantConstantM_d.setDouble(flywheelAdjustmantConstantM);
@@ -329,8 +345,7 @@ public class TurretMain extends SubsystemBase {
   }
 
   public boolean shouldShoot() {
-    return shouldShoot
-     && flywheelAtSpeed();
+    return shouldShoot;
   }
   public boolean flywheelAtSpeed() { return Math.abs(flywheelSetpoint - flywheelMotor.getEncoder().getVelocity()) <= flywheelSpeedTolerance; }
 
@@ -429,7 +444,7 @@ public class TurretMain extends SubsystemBase {
             Math.min(Constants.Limits.Turret.maxPitch, hoodSetpoint));
         turretSetpoint = type.rotationAngle;
         boolean hadToClamp = clampTurretSetpoint();
-        shouldShootMode = type.shouldShoot && !hadToClamp;
+        shouldShootMode = type.shouldShoot;//&& !hadToClamp;
       }
     }
 
@@ -468,7 +483,6 @@ public class TurretMain extends SubsystemBase {
 
     Robot.mecanismPoses[1] = turretPose;
     Robot.mecanismPoses[2] = hoodPose;
-
   }
 
   private boolean clampTurretSetpoint() {
@@ -517,10 +531,14 @@ public class TurretMain extends SubsystemBase {
     Logger.recordOutput("GamePieces", publishedGamePieces.toArray(new Pose3d[0]));
   }
 
-
+  double lastShotTime = 0;
+  double shotDelay = 0.2;
   public void shootSimFuel() {
-    //if (!shouldShoot())
-      //return;
+    if (Timer.getFPGATimestamp() - lastShotTime < shotDelay) return; 
+    lastShotTime = Timer.getFPGATimestamp();
+    if (!shouldShoot())
+      return;
+
 
     // Get robot's field pose (x, y, rotation)
     Pose2d robotFieldPose = Odometry.getInstance().getRealSimPose();

@@ -34,7 +34,7 @@ public class Intake extends SubsystemBase {
   private SparkMax intakeRollerMotor = new SparkMax(Constants.MotorIDs.intakeMotor, SparkMax.MotorType.kBrushless);
   public SparkMaxSim intakeArmMotorSim;
 
-  private double rightEncoderOffset = -0.132 - 0.1895;
+  private double rightEncoderOffset = -0.132 - 0.1895 - 0.114;
 
   public DutyCycleEncoder intakeEncoderL = new DutyCycleEncoder(Constants.SensorIDs.intakeEncoderL, 1,
       Constants.Limits.Intake.leftOffset);
@@ -192,6 +192,7 @@ public class Intake extends SubsystemBase {
     NetworkTables.intakeRightSideHorizontalAngle.setDouble(getRightSideAngle());
     gravityFeedFowardConstant = NetworkTables.intakeGravityConstant.getDouble(gravityFeedFowardConstant);
     separationConstant = NetworkTables.intakeSeparationConstant.getDouble(separationConstant);
+
 
     armPose = new Pose3d(
         Constants.SIM.intakeMechOffset.getX(),

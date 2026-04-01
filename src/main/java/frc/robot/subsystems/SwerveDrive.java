@@ -158,6 +158,8 @@ public class SwerveDrive extends SubsystemBase {
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, boolean lookAtTurretTarget) {
     if (RobotBase.isSimulation()) {
       rot *= -1;
+      ySpeed *= -1;
+      xSpeed *= -1;
     }
 
     if (!fieldRelative && lookAtTurretTarget) {

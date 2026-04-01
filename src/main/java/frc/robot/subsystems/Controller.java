@@ -27,13 +27,13 @@ public class Controller extends SubsystemBase {
 
   public final XboxController secondaryController;
 
-  static boolean linuxSim = true && Robot.isSimulation();
+  static boolean linuxSim = Robot.isSimulation();
   enum AxisMapping {
     LEFT_X(linuxSim ? 0 : 0),
-    RIGHT_X(linuxSim ? 2 : 4),
+    RIGHT_X(linuxSim ? 3 : 4),
     LEFT_Y(linuxSim ? 1 : 1),
-    RIGHT_Y(linuxSim ? 3 : 5),
-    LEFT_TRIGGER(linuxSim ? 4 : 2),
+    RIGHT_Y(linuxSim ? 4 : 5),
+    LEFT_TRIGGER(linuxSim ? 2 : 2),
     RIGHT_TRIGGER(linuxSim ? 5 : 3);
 
     public int axisValue;
@@ -244,7 +244,7 @@ public class Controller extends SubsystemBase {
       Robot.locked = false;
     }
 
-    Feeder.getInstance().setFeederActive(primaryController.getRightBumperButton());
+    Feeder.getInstance().setFeederActive(primaryController.getRightBumperButton()/* && (TurretMain.getInstance().shouldShoot() || !TurretMain.getInstance().getFlywheelActive())*/);
     Feeder.getInstance().setFeederInverted(!TurretMain.getInstance().getFlywheelActive());
   }
 

@@ -2,6 +2,7 @@ package frc.robot.commands.swerveDrive;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.libs.LoggedCommand;
 import frc.robot.libs.NetworkTables;
 import frc.robot.subsystems.Controller;
@@ -74,6 +75,9 @@ public class SwerveDriveManualControl extends LoggedCommand {
             int driveNegation = (((DriverStation.getAlliance().get() == DriverStation.Alliance.Red) && fieldRelative)
                     ? 1
                     : -1);
+            if (Robot.isSimulation()) {
+                driveNegation *= -1;
+            }
             swerveDrive.drive(xSpeed * driveNegation, ySpeed * driveNegation, rot, fieldRelative, fieldRelative
                     && NetworkTables.lookTowardsTarget_b.getBoolean(true)); // Drive the swerve
                                                                             // drive

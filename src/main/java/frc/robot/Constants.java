@@ -119,9 +119,9 @@ public final class Constants {
 
   public static class PID {
     public static class Turret {
-      public static final double hoodP = Robot.isReal() ? 0.005 : 0.001; // PH TUNED
-      public static final double hoodI = 0; // PH TUNED
-      public static final double hoodD = Robot.isReal() ? 0.0001 : 0.000; // F TUNED
+      public static final double hoodP = Robot.isReal() ? 0.010 : 0.001; // PH TUNED
+      public static final double hoodI = Robot.isReal() ? 0.00 : 0; // PH TUNED
+      public static final double hoodD = Robot.isReal() ? 0.000 : 0.000; // F TUNED
 
       public static final double turretP = Robot.isReal() ? 0.0080 : 0.0015;// 0.0075;
       public static final double turretI = Robot.isReal() ? 0.00010 : 0;// 0.000;
@@ -130,7 +130,7 @@ public final class Constants {
       public static final double turretMaxVel = 360 / 2;
       public static final double turretMaxAcc = 1440 / 2;
 
-      public static final double flywheelP = 0.002;
+      public static final double flywheelP = 0.004;
     }
 
     public static class Intake {
@@ -142,8 +142,8 @@ public final class Constants {
 
   public static class FeedFoward {
     public static class Turret {
-      public static final double flywheelS = 0.01; // PHISCIALLY TUNED
-      public static final double flywheelV = Robot.isReal() ? 0.001855 : 0.001755; // FISICALY TUNEED
+      public static final double flywheelS = 4.2; // PHISCIALLY TUNED
+      public static final double flywheelV = Robot.isReal() ? 0.001 : 0.001755; // FISICALY TUNEED
       public static final double flywheelA = 0.0; // TUNED
 
       public static final double turretS = 0.02;
@@ -154,7 +154,7 @@ public final class Constants {
 
   public static class CurrentLimits {
     public static class Turret {
-      public static final int flywheelLimit = 40;
+      public static final int flywheelLimit = 80;
       public static final int hoodLimit = 15;
       public static final int turretLimit = 30;
     }
@@ -238,10 +238,10 @@ public final class Constants {
   public static class Limits {
     public static class Turret {
       public static final double minPitch = 0; // degrees above horizontal
-      public static final double maxPitch = 45;
+      public static final double maxPitch = 42.5;
       public static final double maxAngularVelocity = 1000000;// 30; // degrees per second
 
-      public static final double maxFuelVelocity = 12.5;
+      public static final double maxFuelVelocity = 11.25;
 
       public static final double minYaw = -90;
       public static final double maxYaw = 90;
@@ -251,7 +251,7 @@ public final class Constants {
       public static final double deployedPosition = 0.262776;// rotations
       public static final double feedPosition = 0.1;// rotations
       public static final double stowedPosition = 0.0;// 0.93; // rotations
-      public static final double leftOffset = 0.82 + 0.1945;// 0.93; // rotations
+      public static final double leftOffset = 0.82 + 0.1945 + 0.106;// 0.93; // rotations
     }
   }
 
@@ -277,7 +277,7 @@ public final class Constants {
 
   public static class Odometry {
     public static final double TagCorrectionSpeed = 8;
-    public static final double maxCorrectionDistance = 0.5;
+    public static final double maxCorrectionDistance = 1;
     public static final int startingCameraPasses = 50;
   }
 

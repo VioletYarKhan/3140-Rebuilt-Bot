@@ -46,11 +46,12 @@ public class AutoAim extends AimType {
 
   private Target hubTarget = new Target(
       new Vector2(4.625, 4.025),
-      Units.inchesToMeters(Constants.PathplannerConstants.TopOfHubHeightInches - 3),
+      Units.inchesToMeters(Constants.PathplannerConstants.TopOfHubHeightInches - 5),
       true,
       new ShotPredictor.HeightBounds(
-          Units.inchesToMeters(21 - 1), // radius of hub top (flat side to flat side of hexagon)
-          Units.inchesToMeters(18 + Constants.PathplannerConstants.TopOfHubHeightInches
+          Units.inchesToMeters(21), // radius of hub top (flat side to flat side of hexagon)
+                                                                // p
+          Units.inchesToMeters(10 + Constants.PathplannerConstants.TopOfHubHeightInches
               + Constants.PathplannerConstants.FuelRadiusInches), // desired height
           Units.inchesToMeters(5 + Constants.PathplannerConstants.TopOfHubHeightInches
               + Constants.PathplannerConstants.FuelRadiusInches) // min height
@@ -218,8 +219,8 @@ public class AutoAim extends AimType {
     double desc = b * b - 4 * a * c;
 
     if (desc < 0) {
-      // System.out.println("Never reaches height!");
-      return new Pair<Boolean, Double>(false, Double.MAX_VALUE);
+      System.out.println("Never reaches height!");
+      //return new Pair<Boolean, Double>(false, Double.MAX_VALUE);
     }
 
     // the times that the ball is at the right height
@@ -253,7 +254,7 @@ public class AutoAim extends AimType {
     }
 
     if (bestT.isEmpty()) {
-      // System.out.println("No good score time!");
+      System.out.println("No good score time!");
       return new Pair<Boolean, Double>(false, bestDistSq);
     }
 
@@ -270,7 +271,7 @@ public class AutoAim extends AimType {
     desc = b * b - 4 * a * c;
 
     if (desc < 0) {
-      // System.out.println("Never enters ring!");
+      System.out.println("Never enters ring!");
       return new Pair<Boolean, Double>(false, Math.sqrt(bestDistSq));
     }
 
@@ -289,7 +290,7 @@ public class AutoAim extends AimType {
 
       double height = initialHeight + verticalVelocity * t + 0.5 * ShotPredictor.gravity * t * t;
       if (!currentTarget.heightBounds.IsInBounds(height)) {
-        // System.out.println("Passes ring out of height bounds!!");
+        System.out.println("Passes ring out of height bounds!!");
         return new Pair<Boolean, Double>(false, Math.sqrt(bestDistSq));
       }
 
@@ -328,13 +329,11 @@ public class AutoAim extends AimType {
     updateTarget();
 
     Boolean predictShouldShoot = predict(deltaTime);
-
     if (!predictShouldShoot) {
       shouldShoot = false;
     } else {
       Pair<Boolean, Double> resultPair = EstimateWillScore(hoodMeasurement, flywheelMeasurement, rotationMeasurement);
       shouldShoot = resultPair.getFirst();
-      // errorLog.set(resultPair.getSecond());
     }
 
   }

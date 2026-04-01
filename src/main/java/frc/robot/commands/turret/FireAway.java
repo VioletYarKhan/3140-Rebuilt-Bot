@@ -18,9 +18,6 @@ public class FireAway extends Command {
   private final SwerveDrive swerve = SwerveDrive.getInstance();
   private final TurretMain turret;
 
-  // --- Simulation-only rate limiting (non-blocking) ---
-  private static final double SIM_SHOT_DELAY_SEC = 0.25; // tune as desired
-  private double lastSimShotTimeSec = -1.0;
 
   /**
    * Creates a new Unload.
@@ -48,22 +45,17 @@ public class FireAway extends Command {
   @Override
   public void initialize() {
     turret.setFlywheelActive(true);
-
-    // reset sim timing gate
-    lastSimShotTimeSec = -1.0;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     Feeder.getInstance().setFeederInverted(false);
-    System.out.println("Shooting, " + bypassDistance);
     if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
       // BLUE ALLIANCE --> is closer to x = 0
       if ((swerve.getPose().getX() < Constants.PathplannerConstants.blueAllianceShootPreventionX || bypassDistance) && TurretMain.getInstance().flywheelAtSpeed()) {
 
-        if (Robot.isSimulation())
-          tryShootSimFuel();
+        if (Robot.isSimulation()) turret.shootSimFuel();
 
         if (Robot.isReal())
           Feeder.getInstance().setFeederActive(true);
@@ -74,9 +66,7 @@ public class FireAway extends Command {
     } else {
       // RED ALLIANCE
       if ((swerve.getPose().getX() > Constants.PathplannerConstants.redAllianceShootPreventionX || bypassDistance) && TurretMain.getInstance().flywheelAtSpeed()) {
-
-        if (Robot.isSimulation())
-          tryShootSimFuel();
+        if (Robot.isSimulation()) turret.shootSimFuel();
 
         if (Robot.isReal())
           Feeder.getInstance().setFeederActive(true);
@@ -84,21 +74,6 @@ public class FireAway extends Command {
       } else {
         Feeder.getInstance().setFeederActive(false);
       }
-    }
-  }
-
-  /**
-   * Simulation-only: shoots a simulated fuel at most once every
-   * SIM_SHOT_DELAY_SEC.
-   * Non-blocking (does not use Timer.delay()).
-   */
-  private void tryShootSimFuel() {
-    double now = Timer.getFPGATimestamp();
-
-    // First shot happens immediately after entering the valid region
-    if (lastSimShotTimeSec < 0.0 || (now - lastSimShotTimeSec) >= SIM_SHOT_DELAY_SEC) {
-      turret.shootSimFuel();
-      lastSimShotTimeSec = now;
     }
   }
 
