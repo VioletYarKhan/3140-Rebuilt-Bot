@@ -168,16 +168,17 @@ public final class Constants {
   public static class Bot {
     public static final double gearRatio = 6.75;
     public static final double steerGearRatio = 150 / 7;
-    public static final double botMass = 47.174;
+    public static final double botMass = 46.856;
     public static final double wheelDiameter = Units.inchesToMeters(4);
     public static final double botLength = Units.inchesToMeters(26);
 
     // In meters per second, determined from the free speed of the bot via
     // SwerveDriveSpecialties
     public static final double maxChassisSpeed = 5.36448;
+    public static final double maxChassisSpeedPathplanner = 4;
     public static final double maxModuleSpeed = maxChassisSpeed / (Math.PI * wheelDiameter);
     public static final double maxTurnSpeed = Double.MAX_VALUE; // These are basically infinite for our purposes
-    public static final double maxAcceleration = 2500;
+    public static final double maxAcceleration = 7.8;
     public static final double botRadius = Math.hypot(botLength, botLength);
     // Max Speed divided by the circumference a circle determined by the distance of
     // the module from the center, divided by 2 pi to convert to radians
@@ -231,7 +232,6 @@ public final class Constants {
     public static final double hoodGearRatio = 1;
     public static final double hoodZeroOffset = 52.856759 + 65.594380;
     public static final double flywheelGearRatio = 10;
-
   }
 
   public static class Limits {
@@ -298,18 +298,18 @@ public final class Constants {
     public static final double redTrenchX = 11.915;
 
     // Translation PID Values
-    public static final double TransP = 12;
-    public static final double TransI = 0;
+    public static final double TransP = 6;
+    public static final double TransI = .3;
     public static final double TransD = 0;
 
     // Rotation PID Values
     public static final double RotP = 5;
-    public static final double RotI = 0;
+    public static final double RotI = 0.25;
     public static final double RotD = 0;
 
     public static final PathConstraints pathplannerConstraints = new PathConstraints(
-        Constants.Bot.maxChassisSpeed,
-        4.0,
+        Constants.Bot.maxChassisSpeedPathplanner,
+        1, // 4
         Units.degreesToRadians(540),
         Units.degreesToRadians(720));
 

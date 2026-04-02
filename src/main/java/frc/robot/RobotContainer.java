@@ -24,6 +24,7 @@ import frc.robot.commands.auto.R2L_Neutral;
 import frc.robot.commands.auto.SimpleShoot;
 import frc.robot.commands.auto.SuperSimpleShoot;
 import frc.robot.commands.swerveDrive.Drive;
+import frc.robot.commands.swerveDrive.SetSwerveStates;
 import frc.robot.commands.turret.FireAway;
 import frc.robot.libs.FieldAprilTags;
 import frc.robot.libs.FlipPose;
@@ -172,10 +173,11 @@ public class RobotContainer {
           // Left-to-Right neutral path with shooting
 
           autoCommand = willClimb
-            ? new L2R_Neutral()
-            : new L2R_Neutral().andThen(AutoBuilder
-                .pathfindToPose(FlipPose.flipIfRed(Constants.PathplannerConstants.shootPoseR),
-                  Constants.PathplannerConstants.pathplannerConstraints));
+              ? new L2R_Neutral()
+              : new L2R_Neutral().andThen(AutoBuilder
+                  .pathfindToPose(FlipPose.flipIfRed(Constants.PathplannerConstants.shootPoseR),
+                      Constants.PathplannerConstants.pathplannerConstraints))
+                  .andThen(new SetSwerveStates(swerveDrive));
 
           break;
 
@@ -183,10 +185,11 @@ public class RobotContainer {
           // Right-to-Left neutral path with shooting
 
           autoCommand = willClimb
-            ? new R2L_Neutral()
-            : new R2L_Neutral().andThen(AutoBuilder
-                .pathfindToPose(FlipPose.flipIfRed(Constants.PathplannerConstants.shootPoseL),
-                  Constants.PathplannerConstants.pathplannerConstraints));
+              ? new R2L_Neutral()
+              : new R2L_Neutral().andThen(AutoBuilder
+                  .pathfindToPose(FlipPose.flipIfRed(Constants.PathplannerConstants.shootPoseL),
+                      Constants.PathplannerConstants.pathplannerConstraints))
+                  .andThen(new SetSwerveStates(swerveDrive));
 
           break;
 
