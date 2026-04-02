@@ -37,7 +37,7 @@ import frc.robot.subsystems.odometry.Odometry;
 public class SwerveDrive extends SubsystemBase {
 
   private static SwerveDrive instance = SwerveDrive.getInstance();
-  PIDController thetaController = new PIDController(0.2, 0, 0);
+  PIDController thetaController = new PIDController(5, 0, 0);
   LoggedPIDInputs thetaPIDInputs = new LoggedPIDInputs("ThetaController", 1.5, 0, 0);
   SwerveModuleState[] swerveModuleStates = new SwerveModuleState[4];
   // private Camera camera = Camera.getInstance();
@@ -172,7 +172,7 @@ public class SwerveDrive extends SubsystemBase {
             fieldRelative
                 ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed,
                     lookAtTurretTarget
-                        ? thetaController.calculate(odometry.getGyroRotation().getRadians(),
+                        ? thetaController.calculate(odometry.getGyroRotation().getRadians()+Math.PI,
                             Units.degreesToRadians(TurretMain.getInstance().getLookDirection()))
                         : rot,
                     odometry.getGyroRotation()

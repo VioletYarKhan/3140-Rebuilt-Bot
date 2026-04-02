@@ -17,7 +17,9 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
+import frc.robot.commands.swerveDrive.SetSwerveStates;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.SwerveDrive;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class Pickup_Outpost extends SequentialCommandGroup {
@@ -32,7 +34,7 @@ public class Pickup_Outpost extends SequentialCommandGroup {
       e.printStackTrace();
     }
 
-    this.addCommands(pathCommand.andThen(new InstantCommand(() -> Intake.getInstance().deploy())),
+    this.addCommands(pathCommand.andThen(new SetSwerveStates(SwerveDrive.getInstance()).alongWith(new InstantCommand(() -> Intake.getInstance().deploy()))),
         new WaitCommand(4) /* Then GO CLIMB */);
   }
 }

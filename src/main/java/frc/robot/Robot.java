@@ -13,7 +13,6 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import com.pathplanner.lib.commands.PathfindingCommand;
-import com.pathplanner.lib.config.RobotConfig;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -189,13 +188,6 @@ public class Robot extends LoggedRobot {
 
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
-
-    try {
-      Constants.PathplannerConstants.config = RobotConfig.fromGUISettings();
-    } catch (Exception e) {
-      // Handle exception as needed
-      e.printStackTrace();
-    }
 
     NetworkTables.state_s.setString("DEV");
   }

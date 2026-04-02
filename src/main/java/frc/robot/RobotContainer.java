@@ -20,6 +20,7 @@ import frc.robot.commands.auto.R2L_Neutral;
 import frc.robot.commands.auto.SimpleShoot;
 import frc.robot.commands.auto.SuperSimpleShoot;
 import frc.robot.commands.swerveDrive.Drive;
+import frc.robot.commands.swerveDrive.SetSwerveStates;
 import frc.robot.commands.turret.FireAway;
 import frc.robot.libs.FieldAprilTags;
 import frc.robot.libs.FlipPose;
@@ -138,7 +139,8 @@ public class RobotContainer {
               ? new L2R_Neutral()
               : new L2R_Neutral().andThen(AutoBuilder
                   .pathfindToPose(FlipPose.flipIfRed(Constants.PathplannerConstants.shootPoseR),
-                      Constants.PathplannerConstants.pathplannerConstraints));
+                      Constants.PathplannerConstants.pathplannerConstraints))
+                  .andThen(new SetSwerveStates(swerveDrive));
 
           break;
 
@@ -149,7 +151,8 @@ public class RobotContainer {
               ? new R2L_Neutral()
               : new R2L_Neutral().andThen(AutoBuilder
                   .pathfindToPose(FlipPose.flipIfRed(Constants.PathplannerConstants.shootPoseL),
-                      Constants.PathplannerConstants.pathplannerConstraints));
+                      Constants.PathplannerConstants.pathplannerConstraints))
+                  .andThen(new SetSwerveStates(swerveDrive));
 
           break;
 
