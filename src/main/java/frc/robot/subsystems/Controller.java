@@ -237,6 +237,15 @@ public class Controller extends SubsystemBase {
 
     if (primaryController.getAButtonPressed()) {
       Intake.getInstance().feed();
+    } else if(primaryController.getAButton()) {
+      if(Math.abs(Intake.getInstance().getAngle() - Constants.Limits.Intake.deployedPosition) < (50 / 360)) {
+        System.out.println("feed"); 
+        Intake.getInstance().feed();
+      }
+      if(Math.abs(Intake.getInstance().getAngle() - Constants.Limits.Intake.feedPosition) < (50 / 360))  {
+        System.out.println("deploy"); 
+        Intake.getInstance().deploy();
+      }
     } else if (primaryController.getAButtonReleased()) {
       Intake.getInstance().deploy();
     }
@@ -297,8 +306,10 @@ public class Controller extends SubsystemBase {
       return;
     }
 
+    NetworkTables.flywheelRPMOverride_d.setDouble(5000);
     reusableDefaultControls();
 
+    TurretMain.flywheelRPMOverride = true;
     if (secondaryController.getRightBumperButton()) {
       TurretMain.hoodAngleOverride = true;
       TurretMain.flywheelRPMOverride = true;

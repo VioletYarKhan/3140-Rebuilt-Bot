@@ -129,7 +129,9 @@ public final class Constants {
       public static final double turretMaxVel = 360 / 2;
       public static final double turretMaxAcc = 1440 / 2;
 
-      public static final double flywheelP = 0.004;
+      public static final double flywheelP = 0.0004;
+      public static final double flywheelI = 0.000;
+      public static final double flywheelD = 0.00004;
     }
 
     public static class Intake {
@@ -141,8 +143,8 @@ public final class Constants {
 
   public static class FeedFoward {
     public static class Turret {
-      public static final double flywheelS = 4.2; // PHISCIALLY TUNED
-      public static final double flywheelV = Robot.isReal() ? 0.001 : 0.001755; // FISICALY TUNEED
+      public static final double flywheelS = 0.0; // PHISCIALLY TUNED
+      public static final double flywheelV = Robot.isReal() ? 0.0018 : 0.001755; // FISICALY TUNEED
       public static final double flywheelA = 0.0; // TUNED
 
       public static final double turretS = 0.02;
@@ -166,7 +168,7 @@ public final class Constants {
   }
 
   public static class Bot {
-    public static final double gearRatio = 6.75;
+    public static final double gearRatio = 6.75 / 1.14;
     public static final double steerGearRatio = 150 / 7;
     public static final double botMass = 46.856;
     public static final double wheelDiameter = Units.inchesToMeters(4);

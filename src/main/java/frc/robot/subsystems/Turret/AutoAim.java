@@ -17,7 +17,7 @@ import frc.robot.libs.Vector2;
 import frc.robot.subsystems.odometry.Odometry;
 
 public class AutoAim extends AimType {
-  private static double predictForwardTime = 0.0;
+  private static double predictForwardTime = 0.4;
   private static double predictForwardWhenCheckingMultiplier = 1; // Multiplies predict forward time when checking if
                                                                   // a shot will go in for should shoot
                                                                   // private LoggedNetworkNumber errorLog = new

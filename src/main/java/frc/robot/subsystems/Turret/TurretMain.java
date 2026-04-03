@@ -96,8 +96,8 @@ public class TurretMain extends SubsystemBase {
   public InterpolatingDoubleTreeMap flywheelSpeedToProjectileSpeed = new InterpolatingDoubleTreeMap();
   public InterpolatingDoubleTreeMap projectileSpeedToFlywheelSpeed = new InterpolatingDoubleTreeMap();
 
-  public double flywheelAdjustmantConstantM = 0.263157894737;
-  public double flywheelAdjustmantConstantB = 2633;
+  public double flywheelAdjustmantConstantM = 0.5;
+  public double flywheelAdjustmantConstantB = 1700;
 
   double lastUpdateTimestamp = 0;
 
@@ -308,6 +308,11 @@ public class TurretMain extends SubsystemBase {
     hoodConfig.idleMode(IdleMode.kBrake).inverted(false).smartCurrentLimit(Constants.CurrentLimits.Turret.hoodLimit);
     flywheelConfig.idleMode(IdleMode.kCoast).inverted(true)
         .smartCurrentLimit(Constants.CurrentLimits.Turret.flywheelLimit);
+    flywheelConfig.closedLoop.pid(Constants.PID.Turret.flywheelP, 
+                                  Constants.PID.Turret.flywheelI, 
+                                  Constants.PID.Turret.flywheelD)
+      .feedForward.kS(Constants.FeedFoward.Turret.flywheelS)
+                  .kV(Constants.FeedFoward.Turret.flywheelV);
 
     turretRotationMotor.configure(turretConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     hoodMotor.configure(hoodConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -475,10 +480,9 @@ public class TurretMain extends SubsystemBase {
     }
 
     if (spinup) {
-      flywheelMotor.set(flywheelFeedforward.calculate(flywheelSetpoint) / 12
-          + flywheelFeedbackP * (flywheelSetpoint - flywheelMotor.getEncoder().getVelocity()));
+      flywheelMotor.getClosedLoopController().setSetpoint(Math.max(0, flywheelSetpoint), SparkMax.ControlType.kVelocity);
     } else {
-      flywheelMotor.setVoltage(0);
+      flywheelMotor.getClosedLoopController().setSetpoint(0, SparkMax.ControlType.kVoltage);
     }
 
     hoodPose = new Pose3d(
