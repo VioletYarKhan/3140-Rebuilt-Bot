@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.567959183673469,
-        "y": 0.651
+        "x": 4.2540000000000004,
+        "y": 0.749
       },
       "prevControl": null,
       "nextControl": {
-        "x": 8.488220836230875,
-        "y": 0.03226763517037523
+        "x": 8.174261652557405,
+        "y": 0.13026763517037532
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "R Start"
     },
     {
       "anchor": {

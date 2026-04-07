@@ -7,13 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "L TrenchAproach"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "L2R-Neutral"
+            "pathName": "Depot Path"
           }
         }
       ]

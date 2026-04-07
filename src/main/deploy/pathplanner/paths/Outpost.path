@@ -4,34 +4,41 @@
     {
       "anchor": {
         "x": 3.661,
-        "y": 6.069
+        "y": 2.001
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.2976003672635605,
-        "y": 6.128796320844923
+        "x": 2.3157344361441172,
+        "y": 0.7741452942972569
       },
       "isLocked": false,
-      "linkedName": "L Initial"
+      "linkedName": "R Initial"
     },
     {
       "anchor": {
-        "x": 4.2540000000000004,
-        "y": 7.321
+        "x": 0.416,
+        "y": 0.483
       },
       "prevControl": {
-        "x": 3.2261703320584134,
-        "y": 7.503962447844225
+        "x": 1.5476857711356033,
+        "y": 0.837967893449904
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "L Start"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "Deploy intake",
+      "waypointRelativePos": 0.8406040268456391,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -41,14 +48,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 2.0,
-    "rotation": 0.0
+    "velocity": 0,
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

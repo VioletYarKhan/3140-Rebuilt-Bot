@@ -7,13 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "L TrenchAproach"
+            "pathName": "Outpost"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 5.0
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "L2R-Neutral"
+            "pathName": "Outpost Fire"
           }
         }
       ]
