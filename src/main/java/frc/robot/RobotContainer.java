@@ -108,7 +108,7 @@ public class RobotContainer {
 
     NetworkTables.shouldShoot_b.setBoolean(false);
     if (Robot.isSimulation()) {
-      //fuelSim.spawnStartingFuel(); // spawns fuel in the depots and neutral zone
+      fuelSim.spawnStartingFuel(); // spawns fuel in the depots and neutral zone
 
       // Register a robot for collision with fuel
       fuelSim.registerRobot(
@@ -125,7 +125,8 @@ public class RobotContainer {
           }); // Supplier<ChassisSpeeds> of field-centric chassis speeds
 
       // Register an intake to remove fuel from the field as a rectangular bounding box
-      fuelSim.registerIntake(-Constants.Bot.botLength / 2, Constants.Bot.botLength / 2 , Constants.Bot.botLength / 2, Constants.Bot.botLength + Units.inchesToMeters(8));
+      fuelSim.registerIntake(Constants.Bot.botLength / 2, Constants.Bot.botLength / 2 + Units.inchesToMeters(6) , 
+                          -Constants.Bot.botLength / 2 + Units.inchesToMeters(3), Constants.Bot.botLength / 2 - Units.inchesToMeters(3), () ->{ return Intake.getInstance().isDeployed() || Intake.getInstance().isActive();});
 
 
       fuelSim.start(); // enables the simulation to run (updateSim must still be called periodically)

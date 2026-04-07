@@ -193,7 +193,7 @@ public class ShotPredictor {
 
             // no options, so fail
             if (!foundOption) {
-                System.out.println("NO OPTION FAILURE");
+                //System.out.println("NO OPTION FAILURE");
                 return Optional.empty();
             }
 
@@ -230,10 +230,10 @@ public class ShotPredictor {
                     // System.out.println("ACCEPT TARGET!");
                     return resultOpt;
                 } else {
-                    System.out.println("TARGET OUT OF BOUNDS.\nHeight: "
+                   /* System.out.println("TARGET OUT OF BOUNDS.\nHeight: "
                             + Units.metersToInches(heightInst.getFirst() + shooterHeight) + ";\tMin: "
                             + Units.metersToInches(Bounds.MinHeight) + ";\tDesired: "
-                            + Units.metersToInches(Bounds.DesiredHeight));
+                            + Units.metersToInches(Bounds.DesiredHeight));*/
                     return Optional.empty();
                 }
             } else {

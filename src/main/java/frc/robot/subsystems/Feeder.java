@@ -62,11 +62,11 @@ public class Feeder extends SubsystemBase {
     NetworkTables.intakeCurrent.setDouble(feederMotor.getOutputCurrent());
     // Low pass filter, (I chatgpted everywhere)
     filteredCurrent = filteredCurrent * (1 - ALPHA) + feederMotor.getOutputCurrent() * ALPHA;
-    if (Timer.getFPGATimestamp() - unjamTime > 0.4 && filteredCurrent > 55) {
+    if (Timer.getFPGATimestamp() - unjamTime > 1 && filteredCurrent > 55) {
       feederInvertOverride = true;
       jamTime = Timer.getFPGATimestamp();
     }
-    if (Timer.getFPGATimestamp() - jamTime > 0.15 && feederInvertOverride) {
+    if (Timer.getFPGATimestamp() - jamTime > 0.2 && feederInvertOverride) {
       feederInvertOverride = false;
       unjamTime = Timer.getFPGATimestamp();
     }
@@ -78,7 +78,7 @@ public class Feeder extends SubsystemBase {
       feederMotor.set(Constants.MotorSpeeds.Feeder.rollerSpeed * ((feederInverted || feederInvertOverride) ? -1 : 1));
       rollerMotor.set(Constants.MotorSpeeds.Feeder.feederSpeed * ((feederInverted || feederInvertOverride) ? -1 : 1));
 
-      if (Robot.isSimulation()) {
+      if (Robot.isSimulation() && !(feederInverted || feederInvertOverride)) {
         TurretMain.getInstance().shootSimFuel();
       }
     } else {

@@ -23,7 +23,7 @@ import edu.wpi.first.math.filter.LinearFilter;
 import org.littletonrobotics.junction.Logger;
 
 public class PoseOdometry extends Odometry {
-  Pose2d simStartingPose = FlipPose.flipIfRed(new Pose2d(3.661, 6.0692, new Rotation2d(Units.degreesToRadians(90))));
+  Pose2d simStartingPose = FlipPose.flipIfRed(new Pose2d(12.80, 1.9, new Rotation2d(Units.degreesToRadians(180))));
 
   protected SwerveDrivePoseEstimator estimator = null;
   protected SwerveDrivePoseEstimator simEstimator = null;

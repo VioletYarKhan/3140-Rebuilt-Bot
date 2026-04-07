@@ -118,13 +118,13 @@ public final class Constants {
 
   public static class PID {
     public static class Turret {
-      public static final double hoodP = Robot.isReal() ? 0.010 : 0.001; // PH TUNED
-      public static final double hoodI = Robot.isReal() ? 0.00 : 0; // PH TUNED
-      public static final double hoodD = Robot.isReal() ? 0.000 : 0.000; // F TUNED
+      public static final double hoodP = Robot.isReal() ? 0.0040 : 0.001; // PH TUNED
+      public static final double hoodI = Robot.isReal() ? 0.00005 : 0; // PH TUNED
+      public static final double hoodD = Robot.isReal() ? 0.00002 : 0.000; // F TUNED
 
-      public static final double turretP = Robot.isReal() ? 0.0080 : 0.0015;// 0.0075;
-      public static final double turretI = Robot.isReal() ? 0.00010 : 0;// 0.000;
-      public static final double turretD = 0.0000;// .00015;
+      public static final double turretP = Robot.isReal() ? 0.0050 : 0.0015;// 0.0075;
+      public static final double turretI = Robot.isReal() ? 0.0010 : 0;// 0.000;
+      public static final double turretD = Robot.isReal() ? 0.00040 : 0;// .00015;
 
       public static final double turretMaxVel = 360 / 2;
       public static final double turretMaxAcc = 1440 / 2;
@@ -147,8 +147,8 @@ public final class Constants {
       public static final double flywheelV = Robot.isReal() ? 0.0018 : 0.001755; // FISICALY TUNEED
       public static final double flywheelA = 0.0; // TUNED
 
-      public static final double turretS = 0.02;
-      public static final double turretV = 0.025;
+      public static final double turretS = 0.0;
+      public static final double turretV = 0.08;
       public static final double turretA = 0;
     }
   }
@@ -157,7 +157,7 @@ public final class Constants {
     public static class Turret {
       public static final int flywheelLimit = 80;
       public static final int hoodLimit = 15;
-      public static final int turretLimit = 30;
+      public static final int turretLimit = 40;
     }
 
     public static class Intake {
@@ -172,7 +172,7 @@ public final class Constants {
     public static final double steerGearRatio = 150 / 7;
     public static final double botMass = 46.856;
     public static final double wheelDiameter = Units.inchesToMeters(4);
-    public static final double botLength = Units.inchesToMeters(26);
+    public static final double botLength = Units.inchesToMeters(26) + Units.inchesToMeters(2.5);
 
     // In meters per second, determined from the free speed of the bot via
     // SwerveDriveSpecialties

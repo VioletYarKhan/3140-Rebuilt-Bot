@@ -201,7 +201,7 @@ public class Intake extends SubsystemBase {
         Constants.SIM.intakeMechOffset.getX(),
         Constants.SIM.intakeMechOffset.getY(),
         Constants.SIM.intakeMechOffset.getZ(),
-        new Rotation3d(0, Math.toRadians(intakeEncoderL.get()), 0));
+        new Rotation3d(0, Math.toRadians(intakeEncoderL.get() * 360), 0));
     Robot.mecanismPoses[0] = armPose;
   }
 }

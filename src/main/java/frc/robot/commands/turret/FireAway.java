@@ -5,17 +5,20 @@
 package frc.robot.commands.turret;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.Robot;
+import frc.robot.libs.LoggedCommand;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.SwerveDrive;
 import frc.robot.subsystems.Turret.TurretMain;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class FireAway extends Command {
+public class FireAway extends LoggedCommand {
   private final SwerveDrive swerve = SwerveDrive.getInstance();
   private final TurretMain turret;
+
 
   /**
    * Creates a new Unload.
@@ -37,12 +40,15 @@ public class FireAway extends Command {
   public FireAway(TurretMain turret, boolean bypassDistance) {
     this(turret);
     this.bypassDistance = bypassDistance;
+
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
     turret.setFlywheelActive(true);
+
+    super.initialize();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -51,11 +57,9 @@ public class FireAway extends Command {
     Feeder.getInstance().setFeederInverted(false);
     if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
       // BLUE ALLIANCE --> is closer to x = 0
-      if ((swerve.getPose().getX() < Constants.PathplannerConstants.blueAllianceShootPreventionX || bypassDistance)
-          && TurretMain.getInstance().flywheelAtSpeed()) {
+      if ((swerve.getPose().getX() < Constants.PathplannerConstants.blueAllianceShootPreventionX || bypassDistance) && TurretMain.getInstance().flywheelAtSpeed()) {
 
-        if (Robot.isSimulation())
-          turret.shootSimFuel();
+        if (Robot.isSimulation()) turret.shootSimFuel();
 
         if (Robot.isReal())
           Feeder.getInstance().setFeederActive(true);
@@ -65,10 +69,8 @@ public class FireAway extends Command {
       }
     } else {
       // RED ALLIANCE
-      if ((swerve.getPose().getX() > Constants.PathplannerConstants.redAllianceShootPreventionX || bypassDistance)
-          && TurretMain.getInstance().flywheelAtSpeed()) {
-        if (Robot.isSimulation())
-          turret.shootSimFuel();
+      if ((swerve.getPose().getX() > Constants.PathplannerConstants.redAllianceShootPreventionX || bypassDistance) && TurretMain.getInstance().flywheelAtSpeed()) {
+        if (Robot.isSimulation()) turret.shootSimFuel();
 
         if (Robot.isReal())
           Feeder.getInstance().setFeederActive(true);
@@ -83,6 +85,7 @@ public class FireAway extends Command {
   @Override
   public void end(boolean interrupted) {
     turret.setFlywheelActive(false);
+    super.end(interrupted);
 
     if (Robot.isReal())
       Feeder.getInstance().setFeederActive(false);

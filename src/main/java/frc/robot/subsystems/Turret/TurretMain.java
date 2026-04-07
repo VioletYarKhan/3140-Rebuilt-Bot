@@ -56,6 +56,7 @@ import frc.robot.libs.NetworkTables;
 import frc.robot.libs.Vector2;
 import frc.robot.subsystems.Controller;
 import frc.robot.subsystems.TestRunner;
+import frc.robot.subsystems.Controller.ControlMode;
 import frc.robot.subsystems.TestRunner.TestType;
 import frc.robot.subsystems.odometry.Odometry;
 
@@ -101,7 +102,7 @@ public class TurretMain extends SubsystemBase {
 
   double lastUpdateTimestamp = 0;
 
-  public static final double stowRange = .967; // meters
+  public static final double stowRange = .2; // meters
 
   @AutoLogOutput
   double hoodSetpoint = 0; // degrees
@@ -300,11 +301,13 @@ public class TurretMain extends SubsystemBase {
         turretFeedforwardInputs.getI(),
         turretFeedforwardInputs.getD());
 
+    turretPID.setIntegratorRange(-0.1, 0.1);
+    hoodPID.setIntegratorRange(-0.1, 0.1);
     SparkMaxConfig turretConfig = new SparkMaxConfig();
     SparkFlexConfig flywheelConfig = new SparkFlexConfig();
     SparkMaxConfig hoodConfig = new SparkMaxConfig();
     turretEncoder.setDistancePerPulse(1.04 / (Constants.Bot.turretGearRatio * Constants.Bot.turretGearRatio));
-    turretConfig.idleMode(IdleMode.kCoast).inverted(true);// .743-379smartCurrentLimit(Constants.CurrentLimits.Turret.turretLimit);
+    turretConfig.idleMode(IdleMode.kCoast).inverted(true).smartCurrentLimit(Constants.CurrentLimits.Turret.turretLimit);
     hoodConfig.idleMode(IdleMode.kBrake).inverted(false).smartCurrentLimit(Constants.CurrentLimits.Turret.hoodLimit);
     flywheelConfig.idleMode(IdleMode.kCoast).inverted(true)
         .smartCurrentLimit(Constants.CurrentLimits.Turret.flywheelLimit);
@@ -351,6 +354,7 @@ public class TurretMain extends SubsystemBase {
 
   public void setFlywheelActive(boolean active) {
     spinup = active;
+    System.out.println("Flywheel: " + active);
   }
 
   public boolean getFlywheelActive() {
@@ -463,13 +467,14 @@ public class TurretMain extends SubsystemBase {
       }
     }
 
-    boolean stow = shouldStow();
+    boolean stow = shouldStow() || !spinup;
     shouldShoot = shouldShootMode && !stow;
 
     hoodPID.setSetpoint(hoodAngleOverride ? NetworkTables.hoodAngle_d.getDouble(0) : stow ? 0 : hoodSetpoint);
     hoodMotor.set(hoodPID.calculate(getHoodEncoderAngle()));
 
     double encoderValue = getTurretEncoderAngle();
+    if(AimOpt.AUTO == currentMode) turretSetpoint = spinup ? turretSetpoint : encoderValue;
     double output = turretPID.calculate(encoderValue,
         Math.min(Constants.Limits.Turret.maxYaw, Math.max(turretSetpoint, Constants.Limits.Turret.minYaw)));
     output += turretFeedforward.calculate(turretPID.getSetpoint().velocity);
@@ -615,11 +620,11 @@ public class TurretMain extends SubsystemBase {
     fuel.vx = vx;
     fuel.vy = vy;
     fuel.vz = vz;*/
-
+    System.out.println(flywheelMotor.getEncoder().getVelocity() + " " + projectileSpeed);
     RobotContainer.fuelSim.launchFuel(
-        LinearVelocity.ofRelativeUnits(5, MetersPerSecond),
+        LinearVelocity.ofRelativeUnits(flywheelSpeedToProjectileSpeed.get(flywheelMotor.getEncoder().getVelocity()), MetersPerSecond),
         Angle.ofRelativeUnits(pitch, Radians), 
-        Angle.ofRelativeUnits(yaw + robotFieldPose.getRotation().getRadians(), Radians), 
+        Angle.ofRelativeUnits(yaw - robotFieldPose.getRotation().getRadians(), Radians), 
         Distance.ofRelativeUnits(14, Inches));
     //gamePieces.add(fuel);
     //

@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.254164855702364,
-        "y": 7.320557686456884
+        "x": 4.2540000000000004,
+        "y": 7.321000000000001
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.254164855702364,
-        "y": 7.320557686456884
+        "x": 5.253999999999999,
+        "y": 7.320999999999998
       },
       "isLocked": false,
       "linkedName": "L Start"
@@ -36,12 +36,12 @@
         "y": 4.817116818063282
       },
       "prevControl": {
-        "x": 7.837608277555633,
-        "y": 3.4370844380215577
+        "x": 7.837615595874192,
+        "y": 3.437086292130786
       },
       "nextControl": {
-        "x": 6.699406242998601,
-        "y": 7.929709639562825
+        "x": 6.699389736903424,
+        "y": 7.929705457713791
       },
       "isLocked": false,
       "linkedName": null
@@ -74,6 +74,17 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
+      "name": "FireAway",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "FireAway"
+        }
+      }
+    },
+    {
       "name": "Deploy intake",
       "waypointRelativePos": 0.28108108108108104,
       "endWaypointRelativePos": null,
@@ -85,13 +96,24 @@
       }
     },
     {
-      "name": "FireAway",
-      "waypointRelativePos": 3.0,
+      "name": "StartIntake",
+      "waypointRelativePos": 0.8107165012406947,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
-          "name": "FireAway"
+          "name": "StartIntake"
+        }
+      }
+    },
+    {
+      "name": "EndIntake",
+      "waypointRelativePos": 2.0325779311414385,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "EndIntake"
         }
       }
     }
