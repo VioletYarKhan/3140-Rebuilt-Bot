@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.661,
-        "y": 2.001
+        "x": 3.5386101573365787,
+        "y": 4.004935076929764
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.3157344361441172,
-        "y": 0.7741452942972569
+        "x": 2.193344593480696,
+        "y": 2.778080371227021
       },
       "isLocked": false,
-      "linkedName": "R Initial"
+      "linkedName": "Center Initial"
     },
     {
       "anchor": {

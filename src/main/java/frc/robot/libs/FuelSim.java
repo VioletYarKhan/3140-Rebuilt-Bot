@@ -320,8 +320,8 @@ public class FuelSim {
   protected double robotLength; // size along the robot's x axis
   protected double bumperHeight;
   protected ArrayList<SimIntake> intakes = new ArrayList<>();
-  protected int subticks = 5;
-  protected double loggingFreqHz = 10;
+  protected int subticks = 1;
+  protected double loggingFreqHz = 1;
   protected Timer loggingTimer = new Timer();
 
   /**
@@ -495,6 +495,7 @@ public class FuelSim {
    * Run the simulation forward 1 time step (0.02s)
    */
   public void stepSim() {
+
     for (int i = 0; i < subticks; i++) {
       for (Fuel fuel : fuels) {
         fuel.update(this.simulateAirResistance, this.subticks);
