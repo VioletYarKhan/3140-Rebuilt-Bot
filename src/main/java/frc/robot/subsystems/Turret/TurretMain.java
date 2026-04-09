@@ -252,15 +252,15 @@ public class TurretMain extends SubsystemBase {
   /** Creates a new Turret. */
   public TurretMain() {
 
-    hoodAngleToProjectileAngle.put(10.0, 90.0);
-    hoodAngleToProjectileAngle.put(20.0, 80.0);
-    hoodAngleToProjectileAngle.put(37.5, 56.15);
-    hoodAngleToProjectileAngle.put(42.5, 50.00);
+    hoodAngleToProjectileAngle.put(5.0, 90.0);
+    hoodAngleToProjectileAngle.put(15.0, 80.0);
+    hoodAngleToProjectileAngle.put(32.5, 56.15);
+    hoodAngleToProjectileAngle.put(37.5, 50.00);
 
-    hoodAngleToProjectileAngle.put(90.0, 10.0);
-    projectileAngleToHoodAngle.put(80.0, 20.0);
-    projectileAngleToHoodAngle.put(56.15, 37.5);
-    projectileAngleToHoodAngle.put(50.00, 42.5);
+    hoodAngleToProjectileAngle.put(90.0, 4.0);
+    projectileAngleToHoodAngle.put(80.0, 15.0);
+    projectileAngleToHoodAngle.put(56.15, 32.5);
+    projectileAngleToHoodAngle.put(50.00, 37.5);
 
     projectileSpeedToFlywheelSpeed.put(0.0, 1000.0);
     projectileSpeedToFlywheelSpeed.put(5.18226, 3000.0);
@@ -354,7 +354,6 @@ public class TurretMain extends SubsystemBase {
 
   public void setFlywheelActive(boolean active) {
     spinup = active;
-    System.out.println("Flywheel: " + active);
   }
 
   public boolean getFlywheelActive() {
@@ -620,7 +619,6 @@ public class TurretMain extends SubsystemBase {
     fuel.vx = vx;
     fuel.vy = vy;
     fuel.vz = vz;*/
-    System.out.println(flywheelMotor.getEncoder().getVelocity() + " " + projectileSpeed);
     RobotContainer.fuelSim.launchFuel(
         LinearVelocity.ofRelativeUnits(flywheelSpeedToProjectileSpeed.get(flywheelMotor.getEncoder().getVelocity()), MetersPerSecond),
         Angle.ofRelativeUnits(pitch, Radians), 

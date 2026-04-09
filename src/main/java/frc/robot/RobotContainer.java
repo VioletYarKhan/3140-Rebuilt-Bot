@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import java.util.function.BooleanSupplier;
@@ -15,14 +16,17 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.auto.Climb_Auto;
 import frc.robot.commands.auto.Depot;
 import frc.robot.commands.auto.L2R_Neutral;
 import frc.robot.commands.auto.Pickup_Outpost_Shoot;
 import frc.robot.commands.auto.R2L_Neutral;
 import frc.robot.commands.auto.SimpleShoot;
 import frc.robot.commands.auto.SuperSimpleShoot;
+import frc.robot.commands.climber.Extend;
+import frc.robot.commands.climber.Retract;
+import frc.robot.commands.intake.DeployIntake;
 import frc.robot.commands.swerveDrive.Drive;
 import frc.robot.commands.swerveDrive.SetSwerveStates;
 import frc.robot.commands.turret.FireAway;
@@ -70,7 +74,6 @@ public class RobotContainer {
 
   private SendableChooser<String> Path = new SendableChooser<>();
 
-  private SendableChooser<Supplier<Command>> Climb = new SendableChooser<>();
 
   // Get the singleton instance or create it if it doesn't exist
   public static RobotContainer getInstance() {
@@ -85,6 +88,13 @@ public class RobotContainer {
    */
   private RobotContainer() {
     Path.setDefaultOption("Normal - No PathPlanner", null);
+    Path.addOption("L-Center - Premade Auto", "AL");
+    Path.addOption("R-Center - Premade Auto", "AR");
+    Path.addOption("LR-Center - Premade Auto", "ALR");
+    Path.addOption("RL-Center - Premade Auto", "ARL");
+    Path.addOption("Outpost - Premade Auto", "AO");
+    Path.addOption("Depot - Premade Auto", "AD");
+    Path.addOption("Climb - Premade Auto", "AC");
     Path.addOption("Simple Mobility", "SM");
     Path.addOption("Simple Shoot", "SS");
     Path.addOption("Super Simple Shoot", "SSS");
@@ -92,19 +102,18 @@ public class RobotContainer {
     Path.addOption("R2L Neutral", "R2L");
     Path.addOption("Outpost", "O");
     Path.addOption("Depot", "D");
-    Path.addOption("L-Center - Premade Auto", "AL");
+    
+    NamedCommands.registerCommand("FireAway", new FireAway(turret));
+    NamedCommands.registerCommand("Climb", new Retract());
+    NamedCommands.registerCommand("ExtendClimber", new Extend());
+    NamedCommands.registerCommand("DeployIntake", new InstantCommand(()->intake.deploy()));
+    NamedCommands.registerCommand("StowIntake", new InstantCommand(()->intake.stow()));
+    NamedCommands.registerCommand("StartIntake", new InstantCommand(()->intake.intake(Constants.MotorSpeeds.Intake.intakeSpeed)));
+    NamedCommands.registerCommand("EndIntake", new InstantCommand(()->intake.intake(0)));
 
     SmartDashboard.putData("Path", Path);
 
-    Climb.setDefaultOption("Normal - No Climber", null);
-    Climb.addOption("L1", () -> new Climb_Auto(Climb_Auto.POSITIONS.LEFT, 1));
-    Climb.addOption("L2", () -> new Climb_Auto(Climb_Auto.POSITIONS.LEFT, 2));
-    Climb.addOption("L3", () -> new Climb_Auto(Climb_Auto.POSITIONS.LEFT, 3));
-    Climb.addOption("R1", () -> new Climb_Auto(Climb_Auto.POSITIONS.RIGHT, 1));
-    Climb.addOption("R2", () -> new Climb_Auto(Climb_Auto.POSITIONS.RIGHT, 2));
-    Climb.addOption("R3", () -> new Climb_Auto(Climb_Auto.POSITIONS.RIGHT, 3));
 
-    SmartDashboard.putData("Climb", Climb);
 
     NetworkTables.shouldShoot_b.setBoolean(false);
     if (Robot.isSimulation()) {
@@ -148,14 +157,26 @@ public class RobotContainer {
     if ("SM".equals(selectedPath))
       return new Drive(1000, false, Constants.Bot.maxChassisSpeed / 2, 0, 0);
 
-    if ("AL".equals(selectedPath))
-      return new PathPlannerAuto("L Center Pickup");
+    switch (selectedPath) {
+      case "AL":
+        return new PathPlannerAuto("L Center Pickup");
+      case "AR":
+        return new PathPlannerAuto("R Center Pickup");
+      case "ALR":
+        return new PathPlannerAuto("L R Auto");
+      case "ARL":
+        return new PathPlannerAuto("R L Auto");
+      case "AO":
+        return new PathPlannerAuto("Outpost Auto");
+      case "AD":
+        return new PathPlannerAuto("Depot Auto");
+      case "AC":
+        return new PathPlannerAuto("Climb and Shoot");
+    }
 
     // If we are going to climb, do NOT append the extra pathfind-to-shoot pose on
     /// L2R/R2L.
     // If we are NOT climbing, we DO append it (original behavior).
-    Supplier<Command> climbSupplier = Climb.getSelected();
-    boolean willClimb = (climbSupplier != null);
 
     SequentialCommandGroup autoCommand = new SequentialCommandGroup();
     if (NetworkTables.shouldShoot_b.getBoolean(false)) {
@@ -173,9 +194,7 @@ public class RobotContainer {
         case "L2R":
           // Left-to-Right neutral path with shooting
 
-          autoCommand = willClimb
-              ? new L2R_Neutral()
-              : new L2R_Neutral().andThen(AutoBuilder
+          autoCommand = new L2R_Neutral().andThen(AutoBuilder
                   .pathfindToPose(FlipPose.flipIfRed(Constants.PathplannerConstants.shootPoseR),
                       Constants.PathplannerConstants.pathplannerConstraints))
                   .andThen(new SetSwerveStates(swerveDrive));
@@ -185,9 +204,7 @@ public class RobotContainer {
         case "R2L":
           // Right-to-Left neutral path with shooting
 
-          autoCommand = willClimb
-              ? new R2L_Neutral()
-              : new R2L_Neutral().andThen(AutoBuilder
+          autoCommand = new R2L_Neutral().andThen(AutoBuilder
                   .pathfindToPose(FlipPose.flipIfRed(Constants.PathplannerConstants.shootPoseL),
                       Constants.PathplannerConstants.pathplannerConstraints))
                   .andThen(new SetSwerveStates(swerveDrive));
@@ -247,11 +264,6 @@ public class RobotContainer {
       }
     }
 
-    // Re-use the same climbSupplier computed above (factory), and instantiate a
-    /// fresh command now.
-    if (willClimb && autoCommand != null) {
-      autoCommand = autoCommand.andThen(climbSupplier.get());
-    }
 
     if (NetworkTables.shouldShoot_b.getBoolean(false))
       return autoCommand.alongWith(new FireAway(turret));

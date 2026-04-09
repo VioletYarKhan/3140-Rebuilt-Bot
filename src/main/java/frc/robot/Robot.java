@@ -25,12 +25,14 @@ import frc.robot.commands.swerveDrive.SetSwerveStates;
 import frc.robot.commands.swerveDrive.SwerveDriveManualControl;
 import frc.robot.commands.turret.FireAway;
 import frc.robot.libs.NetworkTables;
+import frc.robot.sensors.Camera;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.SwerveDrive;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.TestRunner;
 import frc.robot.subsystems.Turret.TurretMain;
 import frc.robot.subsystems.odometry.NavXSim;
+import frc.robot.subsystems.odometry.PoseOdometry;
 
 /**
  * The methods in this class are called automatically corresponding to each
@@ -44,6 +46,8 @@ public class Robot extends LoggedRobot {
 
   private final RobotContainer m_robotContainer;
   private final TestRunner m_testRunner;
+
+  public static boolean enabled = false;
 
   @AutoLogOutput(key = "Mecanisms")
   public static Pose3d mecanismPoses[] = new Pose3d[] {
@@ -119,6 +123,8 @@ public class Robot extends LoggedRobot {
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
+
+    enabled = false;
     m_testRunner.stopAll();
   }
 
@@ -132,6 +138,7 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void autonomousInit() {
+    enabled = true;
     m_testRunner.stopAll();
 
     RobotContainer.swerveDrive.setDefaultCommand(new SetSwerveStates(RobotContainer.swerveDrive));
@@ -144,6 +151,7 @@ public class Robot extends LoggedRobot {
     }
 
     NetworkTables.state_s.setString("AUTO");
+    PoseOdometry.getInstance().cameraPasses = 100;
   }
 
   /** This function is called periodically during autonomous. */
@@ -155,6 +163,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopInit() {
+    enabled = true;
     m_testRunner.stopAll();
 
     RobotContainer.swerveDrive.setDefaultCommand(new SwerveDriveManualControl(RobotContainer.swerveDrive,
@@ -184,6 +193,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void testInit() {
     m_testRunner.stopAll();
+    enabled = true;
 
     RobotContainer.swerveDrive.setDefaultCommand(new SetSwerveStates(RobotContainer.swerveDrive));
 

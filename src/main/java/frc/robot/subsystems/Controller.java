@@ -225,7 +225,7 @@ public class Controller extends SubsystemBase {
             ? (NetworkTables.intakeRollerSpeed_d.getDouble(Constants.MotorSpeeds.Intake.intakeSpeed))
             : (primaryController.getPOV() == 0 ? Constants.MotorSpeeds.Intake.outtakeSpeed : 0));
 
-    TurretMain.getInstance().setFlywheelActive(getRightTriggerTriggered(controllers.PRIMARY));
+    if(Robot.enabled) TurretMain.getInstance().setFlywheelActive(getRightTriggerTriggered(controllers.PRIMARY));
 
     if (primaryController.getXButtonPressed()) {
       if (Intake.getInstance().isStowed()) {
@@ -238,12 +238,10 @@ public class Controller extends SubsystemBase {
     if (primaryController.getAButtonPressed()) {
       Intake.getInstance().feed();
     } else if(primaryController.getAButton()) {
-      if(Math.abs(Math.abs(Intake.getInstance().getAngle()) - Constants.Limits.Intake.deployedPosition) < (15.0 / 360.0)) {
-        System.out.println("feed"); 
-        Intake.getInstance().feed();
+      if(Math.abs(Math.abs(Intake.getInstance().getAngle()) - Constants.Limits.Intake.deployedPosition) < (35.0 / 360.0)) {
+        Intake.getInstance().stow();
       }
-      if(Math.abs(Math.abs(Intake.getInstance().getAngle()) - Constants.Limits.Intake.feedPosition) < (5.0 / 360.0))  {
-        System.out.println("deploy"); 
+      if(Math.abs(Math.abs(Intake.getInstance().getAngle()) - Constants.Limits.Intake.feedPosition) < (1.0 / 360.0))  {
         Intake.getInstance().deploy();
       }
     } else if (primaryController.getAButtonReleased()) {

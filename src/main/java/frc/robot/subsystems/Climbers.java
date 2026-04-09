@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -12,45 +13,23 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class Climbers extends SubsystemBase {
   private static Climbers m_Instance = null;
 
-  private final SparkMax lClimber = new SparkMax(Constants.MotorIDs.climberLeftMotor, MotorType.kBrushless);
-  private final SparkMax rClimber = new SparkMax(Constants.MotorIDs.climberRightMotor, MotorType.kBrushless);
+  private final SparkMax climberMotor = new SparkMax(Constants.MotorIDs.climberMotor, MotorType.kBrushless);
 
-  private final DigitalInput climberLimitSwitchL = new DigitalInput(Constants.SensorIDs.Digital.climberLimitSwitchLeft);
-  private final DigitalInput climberLimitSwitchR = new DigitalInput(
-      Constants.SensorIDs.Digital.climberLimitSwitchRight);
+  private Encoder climberEncoder = new Encoder(Constants.SensorIDs.climberEncoderA, Constants.SensorIDs.climberEncoderB);
 
-  private final SparkMaxConfig lConfig = new SparkMaxConfig();
-  private final SparkMaxConfig rConfig = new SparkMaxConfig();
+  private final SparkMaxConfig config = new SparkMaxConfig();
 
-  // Climber objects
-  public class Climber {
-    public final SparkMax motor;
-    public final SparkMaxConfig config;
-    public final DigitalInput limitSwitch;
+  public static double extenededPosition = 12;
+  public static double extendSpeed = 0.25;
+  public static double climbSpeed = -0.5;
 
-    private Climber(SparkMax motor, SparkMaxConfig config, DigitalInput limitSwitch) {
-      this.motor = motor;
-      this.config = config;
-      this.limitSwitch = limitSwitch;
-    }
-
-    public void setSpeed(double speed) {
-      motor.set(speed);
-    }
-
-    public boolean getLimitSwitch() {
-      return !limitSwitch.get(); // Inverted because limit switch returns false when pressed
-    }
-  }
-
-  public final Climber LEFT = new Climber(lClimber, lConfig, climberLimitSwitchL);
-  public final Climber RIGHT = new Climber(rClimber, rConfig, climberLimitSwitchR);
 
   public static Climbers getInstance() {
     if (m_Instance == null) {
@@ -63,15 +42,24 @@ public class Climbers extends SubsystemBase {
   /** Creates a new Climber. */
   public Climbers() {
     // Configure Motors
-    lConfig.inverted(true).smartCurrentLimit(20).idleMode(IdleMode.kBrake);
-    rConfig.inverted(true).smartCurrentLimit(20).idleMode(IdleMode.kBrake);
+    config.inverted(true).smartCurrentLimit(40).idleMode(IdleMode.kBrake);
 
-    lClimber.configure(lConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    rClimber.configure(rConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    climberMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    climberEncoder.setDistancePerPulse(0.01);
+    
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+  }
+
+  public void setMotor(double speed) {
+    climberMotor.set(speed);
+  }
+
+  public double getEncoderDistance() {
+    return climberEncoder.getDistance();
   }
 }

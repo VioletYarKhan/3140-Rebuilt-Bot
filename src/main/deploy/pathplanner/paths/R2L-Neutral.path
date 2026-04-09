@@ -9,7 +9,7 @@
       "prevControl": null,
       "nextControl": {
         "x": 8.174261652557405,
-        "y": 0.13026763517037532
+        "y": 0.13026763517037543
       },
       "isLocked": false,
       "linkedName": "R Start"
@@ -78,7 +78,37 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "Deploy intake",
+      "waypointRelativePos": 0.15950682382133982,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "StartIntake",
+      "waypointRelativePos": 0.40281870347394544,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "EndIntake",
+      "waypointRelativePos": 1.5201612903225827,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "FireAway",
+      "waypointRelativePos": 2.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "FireAway"
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,

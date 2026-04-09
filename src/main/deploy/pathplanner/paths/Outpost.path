@@ -34,9 +34,14 @@
   "eventMarkers": [
     {
       "name": "Deploy intake",
-      "waypointRelativePos": 0.8406040268456391,
+      "waypointRelativePos": 0.3746413616625312,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "DeployIntake"
+        }
+      }
     }
   ],
   "globalConstraints": {
@@ -55,7 +60,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

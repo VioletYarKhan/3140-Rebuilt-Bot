@@ -11,6 +11,7 @@ import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.libs.LoggedCommand;
 import frc.robot.subsystems.Feeder;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.SwerveDrive;
 import frc.robot.subsystems.Turret.TurretMain;
 
@@ -48,43 +49,42 @@ public class FireAway extends LoggedCommand {
   public void initialize() {
     turret.setFlywheelActive(true);
 
+    Feeder.getInstance().setFeederInverted(false);
     super.initialize();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Feeder.getInstance().setFeederInverted(false);
-    if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
-      // BLUE ALLIANCE --> is closer to x = 0
-      if ((swerve.getPose().getX() < Constants.PathplannerConstants.blueAllianceShootPreventionX || bypassDistance) && TurretMain.getInstance().flywheelAtSpeed()) {
+    turret.setFlywheelActive(true);
+    Intake.getInstance().intake(Constants.MotorSpeeds.Intake.intakeSpeed);
+    if (TurretMain.getInstance().flywheelAtSpeed()) {
+      if (Robot.isSimulation()) turret.shootSimFuel();
 
-        if (Robot.isSimulation()) turret.shootSimFuel();
+      if (Robot.isReal())
+        Feeder.getInstance().setFeederActive(true);
 
-        if (Robot.isReal())
-          Feeder.getInstance().setFeederActive(true);
-
-      } else {
-        Feeder.getInstance().setFeederActive(false);
-      }
     } else {
-      // RED ALLIANCE
-      if ((swerve.getPose().getX() > Constants.PathplannerConstants.redAllianceShootPreventionX || bypassDistance) && TurretMain.getInstance().flywheelAtSpeed()) {
-        if (Robot.isSimulation()) turret.shootSimFuel();
-
-        if (Robot.isReal())
-          Feeder.getInstance().setFeederActive(true);
-
-      } else {
-        Feeder.getInstance().setFeederActive(false);
-      }
+      Feeder.getInstance().setFeederActive(false);
     }
+
+    if(Math.abs(Math.abs(Intake.getInstance().getAngle()) - Constants.Limits.Intake.deployedPosition) < (35.0 / 360.0)) {
+      Intake.getInstance().stow();
+    }
+    if(Math.abs(Math.abs(Intake.getInstance().getAngle()) - Constants.Limits.Intake.feedPosition) < (1.0 / 360.0))  {
+      Intake.getInstance().deploy();
+    }
+    SwerveDrive.getInstance().setSwerveModuleStates(SwerveDrive.getInstance().getModuleStates(), true);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+
+    Intake.getInstance().intake(0);
+    System.out.println("Defiring");
     turret.setFlywheelActive(false);
+    Intake.getInstance().deploy();
     super.end(interrupted);
 
     if (Robot.isReal())

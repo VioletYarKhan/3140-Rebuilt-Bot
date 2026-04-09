@@ -20,7 +20,7 @@
         "y": 7.1492119101109175
       },
       "prevControl": {
-        "x": -0.13295338072574447,
+        "x": -0.13295338072574459,
         "y": 7.322738289250888
       },
       "nextControl": {
@@ -36,7 +36,7 @@
         "y": 5.255264761544535
       },
       "prevControl": {
-        "x": 0.05864617557531282,
+        "x": 0.058646175575312764,
         "y": 5.520536375825024
       },
       "nextControl": {
@@ -75,7 +75,7 @@
   "eventMarkers": [
     {
       "name": "Deploy intake",
-      "waypointRelativePos": 1.0,
+      "waypointRelativePos": 0.2845068238213411,
       "endWaypointRelativePos": null,
       "command": null
     },

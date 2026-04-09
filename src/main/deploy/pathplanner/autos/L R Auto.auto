@@ -15,6 +15,12 @@
           "data": {
             "pathName": "L2R-Neutral"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "FireAway"
+          }
         }
       ]
     }

@@ -34,9 +34,14 @@
   "eventMarkers": [
     {
       "name": "FireAway",
-      "waypointRelativePos": 0.5,
+      "waypointRelativePos": 0.6703532102977671,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "FireAway"
+        }
+      }
     }
   ],
   "globalConstraints": {

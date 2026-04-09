@@ -23,7 +23,7 @@ import edu.wpi.first.math.filter.LinearFilter;
 import org.littletonrobotics.junction.Logger;
 
 public class PoseOdometry extends Odometry {
-  Pose2d simStartingPose = FlipPose.flipIfRed(new Pose2d(12.80, 1.9, new Rotation2d(Units.degreesToRadians(180))));
+  Pose2d simStartingPose = FlipPose.flipIfRed(new Pose2d(12.80, 1.9, new Rotation2d(Units.degreesToRadians(90))));
 
   protected SwerveDrivePoseEstimator estimator = null;
   protected SwerveDrivePoseEstimator simEstimator = null;
@@ -38,8 +38,15 @@ public class PoseOdometry extends Odometry {
 
   private Pose2d startingPose = null;
   private final int startingCameraPasses = Constants.Odometry.startingCameraPasses;
-  private int cameraPasses = 0;
+  public int cameraPasses = 0;
   private double angleOffset = 0;
+
+  public static PoseOdometry getInstance() {
+    if (inst == null) {
+      inst = new PoseOdometry();
+    }
+    return (PoseOdometry) inst;
+  }
 
   protected PoseOdometry() {
     super();

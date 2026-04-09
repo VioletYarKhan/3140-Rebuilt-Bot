@@ -71,8 +71,7 @@ public final class Constants {
     public static final int feederMotor = 17; // NEO 8
     public static final int rollerMotor = 16; // NEO 9
 
-    public static final int climberLeftMotor = 19; // NEO 10
-    public static final int climberRightMotor = 18; // NEO 10
+    public static final int climberMotor = 18; // NEO 10
   }
 
   public static class SensorIDs {
@@ -95,11 +94,8 @@ public final class Constants {
 
     public static final int hoodEncoder = 1;
 
-    public static class Digital {
-      // Climber Limit Switches
-      public static final int climberLimitSwitchLeft = 5;
-      public static final int climberLimitSwitchRight = 6;
-    }
+    public static final int climberEncoderA = 6;
+    public static final int climberEncoderB = 7;
   }
 
   public static class MotorSpeeds {

@@ -21,6 +21,12 @@
           "data": {
             "pathName": "Outpost Fire"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "FireAway"
+          }
         }
       ]
     }
