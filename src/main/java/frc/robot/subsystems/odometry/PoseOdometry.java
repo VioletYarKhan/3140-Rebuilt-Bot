@@ -167,7 +167,7 @@ public class PoseOdometry extends Odometry {
   @Override
   public void updatePosition(SwerveModulePosition[] positions) {
     SwerveDrive drive = SwerveDrive.getInstance();
-    double stdDev = 1.5;
+    double stdDev = 2.5;
     if (estimator == null) {
       estimator = new SwerveDrivePoseEstimator(
           drive.kinematics,
