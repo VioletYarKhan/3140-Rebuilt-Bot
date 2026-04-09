@@ -125,9 +125,9 @@ public final class Constants {
       public static final double turretMaxVel = 360 / 2;
       public static final double turretMaxAcc = 1440 / 2;
 
-      public static final double flywheelP = 0.0004;
-      public static final double flywheelI = 0.000;
-      public static final double flywheelD = 0.00004;
+      public static final double flywheelP = Robot.isReal() ? 0.0004 : 0;
+      public static final double flywheelI = Robot.isReal() ? 0.000 : 0.000;
+      public static final double flywheelD = Robot.isReal() ? 0.00004 : 0.000;
     }
 
     public static class Intake {
@@ -153,7 +153,7 @@ public final class Constants {
     public static class Turret {
       public static final int flywheelLimit = 80;
       public static final int hoodLimit = 15;
-      public static final int turretLimit = 40;
+      public static final int turretLimit = 30;
     }
 
     public static class Intake {

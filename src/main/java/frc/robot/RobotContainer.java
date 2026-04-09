@@ -117,7 +117,7 @@ public class RobotContainer {
 
     NetworkTables.shouldShoot_b.setBoolean(false);
     if (Robot.isSimulation()) {
-      fuelSim.spawnStartingFuel(); // spawns fuel in the depots and neutral zone
+      //fuelSim.spawnStartingFuel(); // spawns fuel in the depots and neutral zone
 
       // Register a robot for collision with fuel
       fuelSim.registerRobot(
@@ -153,7 +153,8 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
 
     String selectedPath = Path.getSelected();
-
+    if (selectedPath == null)
+      selectedPath = "";
     if ("SM".equals(selectedPath))
       return new Drive(1000, false, Constants.Bot.maxChassisSpeed / 2, 0, 0);
 

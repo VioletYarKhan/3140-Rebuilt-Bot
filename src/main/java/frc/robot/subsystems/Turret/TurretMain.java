@@ -59,6 +59,7 @@ import frc.robot.subsystems.TestRunner;
 import frc.robot.subsystems.Controller.ControlMode;
 import frc.robot.subsystems.TestRunner.TestType;
 import frc.robot.subsystems.odometry.Odometry;
+import frc.robot.subsystems.odometry.PoseOdometry;
 
 public class TurretMain extends SubsystemBase {
   /////////////////////////////////////////////////////////////////////
@@ -594,20 +595,18 @@ public class TurretMain extends SubsystemBase {
     double robotVelZ = 0; // usually 0 unless you have a swerve module that can jump :)
 
     // Calculate projectile speed (magnitude)
-    double projectileSpeed = FlywheelRPMToSpeed(flywheelMotor.getEncoder().getVelocity());
-    
+    double projectileSpeed = flywheelSpeedToProjectileSpeed.get(flywheelMotor.getEncoder().getVelocity());    
     // Calculate launch direction from shooter pose
     Rotation3d rot = shooterPose.getRotation();
     double pitch = rot.getY(); // radians
     double yaw = rot.getZ(); // radians
-                             /*
     double dx = Math.cos(pitch) * Math.cos(yaw);
     double dy = Math.cos(pitch) * Math.sin(yaw);
     double dz = Math.sin(pitch);
 
     // Add tangential velocity
     Vector2 turretPosition = new Vector2(turretPose.toPose2d().getX(), turretPose.toPose2d().getY())
-        .rotate(Odometry.getInstance().getRotation().getRadians() + (Math.PI / 2))
+        .rotate(Odometry.getInstance().getRotation().getRadians() + Math.PI / 2)
         .mult(Odometry.getInstance().getAngularVelocity());
 
     // Add robot velocity to projectile velocity
@@ -615,17 +614,14 @@ public class TurretMain extends SubsystemBase {
     double vy = projectileSpeed * dy + robotVelY + turretPosition.Y;
     double vz = projectileSpeed * dz + robotVelZ;
 
-    Fuel fuel = new Fuel(shooterPose, 0);
-    fuel.vx = vx;
-    fuel.vy = vy;
-    fuel.vz = vz;*/
+
+    Translation3d launchPos = new Translation3d(fieldX, fieldY, fieldZ);
+    Translation3d launchVel = new Translation3d(vx, vy, vz).rotateBy( new Rotation3d(0,  0, 0));
+    //RobotContainer.fuelSim.spawnFuel(launchPos, launchVel);
     RobotContainer.fuelSim.launchFuel(
         LinearVelocity.ofRelativeUnits(flywheelSpeedToProjectileSpeed.get(flywheelMotor.getEncoder().getVelocity()), MetersPerSecond),
         Angle.ofRelativeUnits(pitch, Radians), 
         Angle.ofRelativeUnits(yaw - robotFieldPose.getRotation().getRadians(), Radians), 
         Distance.ofRelativeUnits(14, Inches));
-    //gamePieces.add(fuel);
-    //
-    //publishedGamePieces.add(shooterPose);
   }
 }
