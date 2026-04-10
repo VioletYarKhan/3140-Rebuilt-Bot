@@ -88,9 +88,12 @@ public class RobotContainer {
    */
   private RobotContainer() {
     Path.setDefaultOption("Normal - No PathPlanner", null);
+
+    Path.addOption("L-Center-Depot - Premade Auto", "AOK");
     Path.addOption("L-Center - Premade Auto", "AL");
     Path.addOption("L-Double-Center - Premade Auto", "AL2");
     Path.addOption("R-Center - Premade Auto", "AR");
+    Path.addOption("R-Double-Center - Premade Auto", "AR2");
     Path.addOption("LR-Center - Premade Auto", "ALR");
     Path.addOption("RL-Center - Premade Auto", "ARL");
     Path.addOption("Outpost - Premade Auto", "AO");
@@ -164,10 +167,14 @@ public class RobotContainer {
     switch (selectedPath) {
       case "AL":
         return new PathPlannerAuto("L Center Pickup");
+      case "AOK":
+        return new PathPlannerAuto("L Center and Depot");
       case "AL2":
         return new PathPlannerAuto("L Double");
       case "AR":
         return new PathPlannerAuto("R Center Pickup");
+      case "AR2":
+        return new PathPlannerAuto("R Double");
       case "ALR":
         return new PathPlannerAuto("L R Auto");
       case "ARL":

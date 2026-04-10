@@ -109,6 +109,7 @@ public class NetworkTables {
     public static NetworkTableEntry shouldShoot_b = misc.getEntry("shouldShoot_b");
     public static NetworkTableEntry lookTowardsTarget_b = misc.getEntry("lookTowardsTarget_b");
     public static NetworkTableEntry intakeRollerSpeed_d = misc.getEntry("intakeRollerSpeed_d");
+    public static NetworkTableEntry standardDeviation_d = misc.getEntry("stdDeviation_d");
 
     
 }

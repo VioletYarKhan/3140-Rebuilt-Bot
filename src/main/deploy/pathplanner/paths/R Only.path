@@ -49,15 +49,15 @@
     {
       "anchor": {
         "x": 3.4327873457058415,
-        "y": 0.6790000000000003
+        "y": 0.7490000000000006
       },
       "prevControl": {
         "x": 4.449420093011128,
-        "y": 0.6375952168810857
+        "y": 0.707595216881086
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "R End"
     }
   ],
   "rotationTargets": [
@@ -89,7 +89,7 @@
   "eventMarkers": [
     {
       "name": "Deploy intake",
-      "waypointRelativePos": 0.28108108108108104,
+      "waypointRelativePos": 0.14972665942928037,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",

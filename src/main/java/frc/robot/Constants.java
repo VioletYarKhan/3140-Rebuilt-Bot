@@ -277,7 +277,7 @@ public final class Constants {
   public static class Odometry {
     public static final double TagCorrectionSpeed = 25;
 
-    public static final double maxCorrectionDistance = 3;
+    public static final double maxCorrectionDistance = 50;
     public static final int startingCameraPasses = 20;
   }
 

@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.libs.FlipPose;
+import frc.robot.libs.NetworkTables;
 import frc.robot.libs.Vector2;
 import frc.robot.subsystems.SwerveDrive;
 import frc.robot.subsystems.SwerveModule;
@@ -52,6 +53,7 @@ public class PoseOdometry extends Odometry {
   protected PoseOdometry() {
     super();
     NavXSim.getInstance().reset(simStartingPose.getRotation().getRadians());
+    NetworkTables.standardDeviation_d.setDouble(Constants.CameraConstants.stdDev);
   }
 
   public double getX() {
@@ -169,7 +171,7 @@ public class PoseOdometry extends Odometry {
   @Override
   public void updatePosition(SwerveModulePosition[] positions) {
     SwerveDrive drive = SwerveDrive.getInstance();
-    double stdDev = Constants.CameraConstants.stdDev;
+    double stdDev = NetworkTables.standardDeviation_d.getDouble(Constants.CameraConstants.stdDev);
     if (estimator == null) {
       estimator = new SwerveDrivePoseEstimator(
           drive.kinematics,

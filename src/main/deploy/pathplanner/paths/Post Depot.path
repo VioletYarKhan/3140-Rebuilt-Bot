@@ -1,0 +1,120 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.4327873457058415,
+        "y": 7.321000000000001
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.4327873457058407,
+        "y": 7.321000000000001
+      },
+      "isLocked": false,
+      "linkedName": "L End"
+    },
+    {
+      "anchor": {
+        "x": 0.4151934109874825,
+        "y": 7.321000000000001
+      },
+      "prevControl": {
+        "x": 0.40823305325490583,
+        "y": 7.570903088056617
+      },
+      "nextControl": {
+        "x": 0.4427807175764952,
+        "y": 6.330511669853965
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.4151934109874825,
+        "y": 5.562307621262169
+      },
+      "prevControl": {
+        "x": 0.3876061043984702,
+        "y": 6.854908727399166
+      },
+      "nextControl": {
+        "x": 0.4205278149226213,
+        "y": 5.312364539472221
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.4180086817628652,
+        "y": 5.562307621262169
+      },
+      "prevControl": {
+        "x": 0.8614026099617524,
+        "y": 5.438093271905425
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.8469268672199174,
+      "rotationDegrees": -90.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "Deploy intake",
+      "waypointRelativePos": 0.40207234801488834,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Deploy intake"
+        }
+      }
+    },
+    {
+      "name": "StartIntake",
+      "waypointRelativePos": 0.5480769230769229,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "StartIntake"
+        }
+      }
+    },
+    {
+      "name": "EndIntake",
+      "waypointRelativePos": 2.695719602977668,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -88.86280566352693
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": true
+}
