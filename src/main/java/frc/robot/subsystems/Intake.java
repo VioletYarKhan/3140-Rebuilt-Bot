@@ -47,6 +47,8 @@ public class Intake extends SubsystemBase {
   private double separationConstantThreshold = 4;
   private double intakeSetpoint = Constants.Limits.Intake.stowedPosition;
 
+  private int simBalls = 8;
+
   private TurretMain.LoggedPIDInputs intakePIDInputs = new TurretMain.LoggedPIDInputs(
       "Intake",
       Constants.PID.Intake.intakeP,
@@ -203,5 +205,27 @@ public class Intake extends SubsystemBase {
         Constants.SIM.intakeMechOffset.getZ(),
         new Rotation3d(0, Math.toRadians(intakeEncoderL.get() * 360), 0));
     Robot.mecanismPoses[0] = armPose;
+  }
+
+  public void addBall(){
+    if (simBalls >= 30){
+      return;
+    }
+    simBalls += 1;
+  }
+
+  public boolean isFull(){
+    return simBalls >= 30;
+  }
+
+  public int getBalls(){
+    return simBalls;
+  }
+
+  public void removeBall(){
+    simBalls -= 1;
+    if (simBalls < 0){
+      simBalls = 0;
+    }
   }
 }

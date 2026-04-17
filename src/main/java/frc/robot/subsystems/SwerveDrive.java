@@ -28,10 +28,12 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.libs.NetworkTables;
 import frc.robot.subsystems.Turret.TurretMain;
 import frc.robot.subsystems.Turret.TurretMain.LoggedPIDInputs;
 import frc.robot.subsystems.odometry.Odometry;
+import frc.robot.subsystems.odometry.PoseOdometry;
 
 /** Represents a swerve drive style drivetrain. */
 public class SwerveDrive extends SubsystemBase {
@@ -333,5 +335,8 @@ public class SwerveDrive extends SubsystemBase {
 
   public void resetPose(Pose2d pose) {
     odometry.resetPose(pose);
+    if (Robot.isSimulation()){
+      PoseOdometry.getInstance().resetPose(pose);
+    }
   }
 }

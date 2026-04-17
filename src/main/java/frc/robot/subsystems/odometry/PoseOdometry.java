@@ -4,32 +4,28 @@
 
 package frc.robot.subsystems.odometry;
 
+import org.littletonrobotics.junction.Logger;
+
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import frc.robot.Constants;
-import frc.robot.Robot;
-import frc.robot.libs.FlipPose;
-import frc.robot.libs.NetworkTables;
-import frc.robot.libs.Vector2;
-import frc.robot.subsystems.SwerveDrive;
-import frc.robot.subsystems.SwerveModule;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.filter.LinearFilter;
-
-import org.littletonrobotics.junction.Logger;
+import frc.robot.Constants;
+import frc.robot.libs.FlipPose;
+import frc.robot.libs.NetworkTables;
+import frc.robot.libs.Vector2;
+import frc.robot.subsystems.SwerveDrive;
 
 public class PoseOdometry extends Odometry {
   Pose2d simStartingPose = FlipPose.flipIfRed(new Pose2d(12.80, 1, new Rotation2d(Units.degreesToRadians(45))));
 
   protected SwerveDrivePoseEstimator estimator = null;
-  protected SwerveDrivePoseEstimator simEstimator = null;
-  protected SwerveDrivePoseEstimator simDriftEstimator = null;
   private LinearFilter velXFilter = LinearFilter.movingAverage(4);
   private LinearFilter velYFilter = LinearFilter.movingAverage(4);
   private LinearFilter rotVelFilter = LinearFilter.movingAverage(4);
@@ -100,14 +96,6 @@ public class PoseOdometry extends Odometry {
     angleOffset = pose.getRotation().getRadians();
     if (RobotBase.isSimulation()) {
       NavXSim.getInstance().reset(0);
-
-      /*
-      // Reset all the module encoders to 0
-      for (SwerveModule module : SwerveDrive.getInstance().modules) {
-        module.simDriveMotor.setPosition(0);
-
-        module.simTurnMotor.setPosition(0);
-      }*/
     } else {
       gyro.reset();
     }
@@ -120,9 +108,10 @@ public class PoseOdometry extends Odometry {
     return estimator == null ? nullPose : estimator.getEstimatedPosition();
   }
 
+  /** In simulation, returns the same estimator pose (no separate "real" sim estimator). */
   @Override
   public Pose2d getRealSimPose() {
-    return simEstimator == null ? nullPose : simEstimator.getEstimatedPosition();
+    return getPose();
   }
 
   @Override
@@ -164,7 +153,6 @@ public class PoseOdometry extends Odometry {
 
   public void resetGyroCamera(double correctAngle) {
     angleOffset = -readRotationRaw() + correctAngle;
-
   }
 
   public void recalibrateCameraPose() {
@@ -175,40 +163,25 @@ public class PoseOdometry extends Odometry {
   public void updatePosition(SwerveModulePosition[] positions) {
     SwerveDrive drive = SwerveDrive.getInstance();
     double stdDev = NetworkTables.standardDeviation_d.getDouble(Constants.CameraConstants.stdDev);
+
     if (estimator == null) {
+      Pose2d initialPose = RobotBase.isSimulation() ? simStartingPose : new Pose2d();
       estimator = new SwerveDrivePoseEstimator(
           drive.kinematics,
           getGyroRotation(),
           positions,
-          new Pose2d());
+          initialPose);
       estimator.setVisionMeasurementStdDevs(VecBuilder.fill(stdDev, stdDev, Units.degreesToRadians(1000000000)));
-
-      if (RobotBase.isSimulation()) {
-        simEstimator = new SwerveDrivePoseEstimator(
-            drive.kinematics,
-          NavXSim.getInstance().getRealRotation(),
-            positions,
-            simStartingPose);
-        simDriftEstimator = new SwerveDrivePoseEstimator(
-            drive.kinematics,
-            getGyroRotation(),
-            positions,
-            simStartingPose);
-        simDriftEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(stdDev, stdDev, Units.degreesToRadians(1000000000)));
-      }
     }
 
-    if (RobotBase.isSimulation()) simEstimator.update(NavXSim.getInstance().getRealRotation(), positions);
     estimator.update(getGyroRotation(), positions);
 
-    Logger.recordOutput("Odometry/simRealPosition", Robot.isSimulation() ? simEstimator.getEstimatedPosition() : estimator.getEstimatedPosition());
-    Logger.recordOutput("Odometry/simVisionBot", estimator.getEstimatedPosition());
+    Logger.recordOutput("Odometry/Position", estimator.getEstimatedPosition());
   }
 
   @Override
   public void addVisionMeasurement(Pose2d pose, double timestamp) {
     if (estimator != null) {
-
       if (cameraPasses == 0) {
         startingPose = null;
         cameraPasses++;
@@ -225,10 +198,10 @@ public class PoseOdometry extends Odometry {
         cameraPasses++;
       } else {
         if (estimator.getEstimatedPosition().getTranslation()
-            .getDistance(pose.getTranslation()) < Constants.Odometry.maxCorrectionDistance && Math.abs(estimator.getEstimatedPosition().getRotation().getDegrees() - pose.getRotation().getDegrees()) < 5) {
-          estimator.addVisionMeasurement(
-              pose,
-              Timer.getFPGATimestamp());
+            .getDistance(pose.getTranslation()) < Constants.Odometry.maxCorrectionDistance
+            && Math.abs(estimator.getEstimatedPosition().getRotation().getDegrees()
+                - pose.getRotation().getDegrees()) < 5) {
+          estimator.addVisionMeasurement(pose, Timer.getFPGATimestamp());
         }
         estimator.resetRotation(getGyroRotation());
       }
@@ -245,7 +218,6 @@ public class PoseOdometry extends Odometry {
   }
 
   public Vector2 getBotVelocity(boolean fieldRelative) {
-
     return fieldRelative ? smoothedVelocity.rotate(getAngle()) : smoothedVelocity;
   }
 
@@ -256,10 +228,6 @@ public class PoseOdometry extends Odometry {
 
   public Vector2 getBotAcceleration() {
     return new Vector2();
-
-    // return new
-    // Vector2(SwerveDrive.getInstance().getFieldRelativeAcceleration().vxMetersPerSecond,
-    // SwerveDrive.getInstance().getFieldRelativeAcceleration().vyMetersPerSecond);
   }
 
   @Override

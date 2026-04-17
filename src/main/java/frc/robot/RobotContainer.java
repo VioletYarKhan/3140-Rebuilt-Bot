@@ -4,18 +4,17 @@
 
 package frc.robot;
 
+import java.util.Set;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
-import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
-
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.auto.Depot;
@@ -26,7 +25,6 @@ import frc.robot.commands.auto.SimpleShoot;
 import frc.robot.commands.auto.SuperSimpleShoot;
 import frc.robot.commands.climber.Extend;
 import frc.robot.commands.climber.Retract;
-import frc.robot.commands.intake.DeployIntake;
 import frc.robot.commands.swerveDrive.Drive;
 import frc.robot.commands.swerveDrive.SetSwerveStates;
 import frc.robot.commands.turret.FireAway;
@@ -34,7 +32,6 @@ import frc.robot.libs.FieldAprilTags;
 import frc.robot.libs.FlipPose;
 import frc.robot.libs.FuelSim;
 import frc.robot.libs.NetworkTables;
-import frc.robot.libs.Vector2;
 import frc.robot.sensors.Camera;
 import frc.robot.subsystems.Climbers;
 import frc.robot.subsystems.Controller;
@@ -68,7 +65,6 @@ public class RobotContainer {
   public static Feeder feeder = Feeder.getInstance();
   public static Intake intake = Intake.getInstance();
   public static Climbers climber = Climbers.getInstance();
-  public static FuelSim fuelSim = new FuelSim("physicFuel");
 
   public static TestRunner testRunner = TestRunner.getInstance();
 
@@ -107,7 +103,7 @@ public class RobotContainer {
     Path.addOption("Outpost", "O");
     Path.addOption("Depot", "D");
     
-    NamedCommands.registerCommand("FireAway", new FireAway(turret, true));
+    NamedCommands.registerCommand("FireAway", new DeferredCommand(()->new FireAway(turret, true), Set.of(turret)));
     NamedCommands.registerCommand("Climb", new Retract());
     NamedCommands.registerCommand("ExtendClimber", new Extend());
     NamedCommands.registerCommand("DeployIntake", new InstantCommand(()->intake.deploy()));
@@ -121,33 +117,31 @@ public class RobotContainer {
 
     NetworkTables.shouldShoot_b.setBoolean(false);
     if (Robot.isSimulation()) {
-      /*
+      FuelSim fuelSim = FuelSim.getInstance();
       fuelSim.spawnStartingFuel(); // spawns fuel in the depots and neutral zone
 
-      // Register a robot for collision with fuel
+      // Register a robot for collision and intake simulation
       fuelSim.registerRobot(
           Constants.Bot.botLength, // from left to right in meters
           Constants.Bot.botLength, // from front to back in meters
-          4, // from floor to top of bumpers in meters
-          () -> { return PoseOdometry.getInstance().getRealSimPose(); } , // Supplier<Pose2d> of robot pose
-          () -> {
-            Vector2 velocity = odometry.getBotVelocity(true);
-            return new ChassisSpeeds(
-                velocity.X * 0, 
-                velocity.Y * 0, 
-                odometry.getAngularVelocity() * 0);
-          }); // Supplier<ChassisSpeeds> of field-centric chassis speeds
+          Units.inchesToMeters(8.0), // from floor to top of bumpers in meters
+          () -> PoseOdometry.getInstance().getRealSimPose(), // Supplier<Pose2d> of robot pose
+          () -> SwerveDrive.getInstance()
+              .getFieldRelativeSpeeds()); // Supplier<ChassisSpeeds> of field-centric chassis speeds
 
       // Register an intake to remove fuel from the field as a rectangular bounding box
-      fuelSim.registerIntake(Constants.Bot.botLength / 2, Constants.Bot.botLength / 2 + Units.inchesToMeters(6) , 
-                          -Constants.Bot.botLength / 2 + Units.inchesToMeters(3), Constants.Bot.botLength / 2 - Units.inchesToMeters(3), () ->{ return Intake.getInstance().isDeployed() || Intake.getInstance().isActive();});
-
+      fuelSim.registerIntake(
+          Constants.Bot.botLength / 2.0,
+          Constants.Bot.botLength / 2.0 + Units.inchesToMeters(6.0),
+          -Constants.Bot.botLength / 2.0 + Units.inchesToMeters(3.0),
+          Constants.Bot.botLength / 2.0 - Units.inchesToMeters(3.0),
+          () -> ((Intake.getInstance().isDeployed() || Intake.getInstance().isActive()) && !Intake.getInstance().isFull()),
+          (Intake.getInstance()::addBall)
+          );
 
       fuelSim.start(); // enables the simulation to run (updateSim must still be called periodically)
-                       //     fuelSim.stop(); // stops the simulation running (updateSim will do nothing until start is called again)
 
-      //fuelSim.enableAirResistance(); // an additional drag force will be applied to fuel in physics update step
-      */
+      fuelSim.enableAirResistance();
     }
   }
 

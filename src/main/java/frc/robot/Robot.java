@@ -12,7 +12,6 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
-import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
 import edu.wpi.first.math.geometry.Pose3d;
@@ -23,9 +22,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.swerveDrive.SetSwerveStates;
 import frc.robot.commands.swerveDrive.SwerveDriveManualControl;
-import frc.robot.commands.turret.FireAway;
+import frc.robot.libs.FuelSim;
 import frc.robot.libs.NetworkTables;
-import frc.robot.sensors.Camera;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.SwerveDrive;
 import frc.robot.subsystems.SwerveModule;
@@ -284,7 +282,7 @@ public class Robot extends LoggedRobot {
     ChassisSpeeds speeds = SwerveDrive.getInstance().kinematics.toChassisSpeeds(positions);
     NavXSim.getInstance().update(speeds.omegaRadiansPerSecond, dt);
 
-    //RobotContainer.fuelSim.updateSim();
+    FuelSim.getInstance().updateSim();
   }
 
 }

@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Optional;
 
 import edu.wpi.first.math.Pair;
-import edu.wpi.first.math.util.Units;
 
 public class ShotPredictor {
     public double MinAngle;

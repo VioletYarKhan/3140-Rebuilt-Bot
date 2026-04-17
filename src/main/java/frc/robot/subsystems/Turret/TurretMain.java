@@ -5,8 +5,6 @@
 
 package frc.robot.subsystems.Turret;
 
-import static edu.wpi.first.units.Units.Degrees;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -35,7 +33,6 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -45,15 +42,14 @@ import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
-import frc.robot.RobotContainer;
+import frc.robot.libs.FuelSim;
 import frc.robot.libs.NetworkTables;
 import frc.robot.libs.Vector2;
 import frc.robot.subsystems.Controller;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.TestRunner;
-import frc.robot.subsystems.Controller.ControlMode;
 import frc.robot.subsystems.TestRunner.TestType;
 import frc.robot.subsystems.odometry.Odometry;
-import frc.robot.subsystems.odometry.PoseOdometry;
 
 public class TurretMain extends SubsystemBase {
   /////////////////////////////////////////////////////////////////////
@@ -606,12 +602,12 @@ public class TurretMain extends SubsystemBase {
     double vy = projectileSpeed * dy + robotVelY + turretPosition.Y;
     double vz = projectileSpeed * dz + robotVelZ;
 
-    Fuel fuel = new Fuel(shooterPose, 0);
-    fuel.vx = vx;
-    fuel.vy = vy;
-    fuel.vz = vz;
-    gamePieces.add(fuel);
-    publishedGamePieces.add(shooterPose);
+    if (Intake.getInstance().getBalls() != 0){
+      FuelSim.getInstance().spawnFuel(
+        shooterPose.getTranslation(), new Translation3d(vx, vy, vz));
+      Intake.getInstance().removeBall();
+    }
+    
 
     /*
     double projectileSpeed = flywheelSpeedToProjectileSpeed.get(flywheelMotor.getEncoder().getVelocity());

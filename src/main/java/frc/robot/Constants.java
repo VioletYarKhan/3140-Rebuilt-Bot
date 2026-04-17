@@ -250,6 +250,11 @@ public final class Constants {
       public static final double stowedPosition = 0.0;// 0.93; // rotations
       public static final double leftOffset = 0.82 + 0.1945 + 0.106;// 0.93; // rotations
     }
+
+    public static class Feeder {
+      // Simulation + game rule dependent, adjust as needed.
+      public static final int maxBallsHeld = 2;
+    }
   }
 
   public static class Controller {
